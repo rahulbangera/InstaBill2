@@ -116,6 +116,7 @@ export const authConfig: NextAuthConfig = {
       const existingUser = await getUserById(token.sub);
       console.log(existingUser);
       if (existingUser) {
+        token.id = existingUser.id;
         token.role = existingUser.role;
         token.name = existingUser.name;
         token.email = existingUser.email;

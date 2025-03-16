@@ -22,12 +22,16 @@ export async function middleware(request: NextRequest) {
     }
   }
   if (request.nextUrl.pathname === "/dashboard/owner") {
-    if (!token || token.role !== "OWNER") {
+    if (token && token.role === "EMPLOYEE") {
+      return NextResponse.redirect(new URL("/dashboard/employee", request.url));
+    } else if (!token || token.role !== "OWNER") {
       return NextResponse.redirect(new URL("/signin", request.url));
     }
   }
   if (request.nextUrl.pathname === "/dashboard/employee") {
-    if (!token || token.role !== "EMPLOYEE") {
+    if (token && token.role === "OWNER") {
+      return NextResponse.redirect(new URL("/dashboard/owner", request.url));
+    } else if (!token || token.role !== "EMPLOYEE") {
       return NextResponse.redirect(new URL("/signin", request.url));
     }
   }
@@ -35,5 +39,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/signin", "/dashboard"],
+  matcher: ["/signin", "/dashboard", "/dashboard/owner", "/dashboard/employee"],
 };

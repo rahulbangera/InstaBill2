@@ -19,6 +19,13 @@ enum UserRole {
     EMPLOYEE
 }
 
+enum PaymentMethod {
+    CASH
+    UPI
+    CARD
+    CREDIT
+}
+
 // Necessary for Next auth
 model Account {
     id                       String  @id @default(cuid())
@@ -47,19 +54,6 @@ model Session {
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model User {
-    id            String    @id @default(cuid())
-    name          String
-    role          UserRole  @default(OWNER)
-    email         String    @unique
-    password      String
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-    todos         Todo[]
-}
-
 model VerificationToken {
     identifier String
     token      String   @unique
@@ -76,4 +70,98 @@ model Todo {
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
     user        User     @relation(fields: [userId], references: [id])
+}
+
+model User {
+    id            String    @id @default(cuid())
+    name          String
+    role          UserRole  @default(OWNER)
+    email         String    @unique
+    password      String
+    emailVerified DateTime?
+    image         String?   @db.Text
+    accounts      Account[]
+    sessions      Session[]
+    todos         Todo[]
+    owner         Owner?
+    employee      Employee?
+    createdAt     DateTime  @default(now())
+}
+
+model Owner {
+    id        String   @id @default(cuid())
+    userId    String   @unique
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    shops     Shop[]
+    createdAt DateTime @default(now())
+}
+
+model Employee {
+    id        String   @id @default(cuid())
+    userId    String   @unique
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    shopId    String
+    shop      Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+    Bill      Bill[]
+    createdAt DateTime @default(now())
+}
+
+model Shop {
+    id         String       @id @default(cuid())
+    name       String
+    address    String
+    phone      String
+    email      String
+    shopImage  String       @default("https://www.google.com/url?sa=i&url=https%3A%2F%2Fcwdaust.com.au%2Fcommercial%2Flot-5883-manganese-st-wedgefield%2Fplaceholder-store%2F&psig=AOvVaw3DrrT4yfF4HG22qs5AufhE&ust=1742104796919000&source=images&opi=89978449") @db.Text
+    ownerId    String
+    owner      Owner        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+    employees  Employee[]
+    products   Product[]
+    bills      Bill[]
+    dailySales DailySales[]
+    createdAt  DateTime     @default(now())
+}
+
+model Product {
+    id        String     @id @default(cuid())
+    name      String
+    price     Float
+    shopId    String
+    shop      Shop       @relation(fields: [shopId], references: [id], onDelete: Cascade)
+    billItem  BillItem[]
+    createdAt DateTime   @default(now())
+}
+
+model Bill {
+    id            String        @id @default(cuid())
+    shopId        String
+    shop          Shop          @relation(fields: [shopId], references: [id])
+    items         BillItem[]
+    total         Float
+    paymentMethod PaymentMethod
+    employeeId    String
+    employee      Employee      @relation(fields: [employeeId], references: [id])
+    createdAt     DateTime      @default(now())
+}
+
+model BillItem {
+    id        String   @id @default(cuid())
+    billId    String
+    bill      Bill     @relation(fields: [billId], references: [id], onDelete: Cascade)
+    productId String
+    product   Product  @relation(fields: [productId], references: [id])
+    quantity  Int
+    price     Float
+    createdAt DateTime @default(now())
+}
+
+model DailySales {
+    id         String   @id @default(cuid())
+    shopId     String
+    shop       Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+    date       DateTime
+    totalSales Float
+    totalBills Int
+    totalItems Int
+    createdAt  DateTime @default(now())
 }

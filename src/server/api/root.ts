@@ -1,6 +1,8 @@
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { todoRouter } from "./routers/todo";
 import { usersRouter } from "./routers/users";
+import { storesRouter } from "./routers/stores";
+import { utRouter } from "./routers/uploadthing";
 
 /**
  * This is the primary router for your server.
@@ -10,6 +12,8 @@ import { usersRouter } from "./routers/users";
 export const appRouter = createTRPCRouter({
   todo: todoRouter,
   user: usersRouter,
+  shops: storesRouter,
+  ut: utRouter,
 });
 
 // export type definition of API

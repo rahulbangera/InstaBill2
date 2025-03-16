@@ -34,8 +34,8 @@ const signin = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <div className="w-full max-w-md space-y-6 rounded-xl border-[1px] border-black bg-gray-500 p-8 shadow-md">
-        <h2 className="text-center text-2xl font-bold text-gray-900">
+      <div className="w-full max-w-md space-y-6 rounded-xl border-[1px] border-black bg-gray-700 p-8 shadow-md">
+        <h2 className="text-center text-2xl font-bold text-gray-300">
           Sign In
         </h2>
         <form className="space-y-6">
@@ -50,9 +50,10 @@ const signin = () => {
               type="email"
               id="email"
               name="email"
+              placeholder="Email"
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-black focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+              className="mt-1 w-full rounded border border-gray-500 bg-gray-600 px-3 py-2 text-white outline-none focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
             />
           </div>
           <div>
@@ -66,9 +67,10 @@ const signin = () => {
               type="password"
               id="password"
               name="password"
+              placeholder="Password"
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-black focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+              className="mt-1 w-full rounded border border-gray-500 bg-gray-600 px-3 py-2 text-white outline-none focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
             />
           </div>
           <Button
@@ -79,9 +81,12 @@ const signin = () => {
           >
             Sign In
           </Button>
-          <h2>
+          <h2 className="text-gray-200">
             Don't have an account?{" "}
-            <Link href={"/auth/signup"} className="font-bold">
+            <Link
+              href={"/auth/signup"}
+              className="font-bold hover:text-gray-100 hover:underline"
+            >
               Create Now
             </Link>
           </h2>

@@ -5,6 +5,16 @@
 import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+  images: {
+    domains: ["www.google.com", "sea1.ingest.uploadthing.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "*.ufs.sh", // Allows any subdomain of ufs.sh
+      },
+    ], // ✅ Add allowed hostnames
+  },
+};
 
 export default config;
