@@ -5,6 +5,8 @@ import { SunIcon, MoonIcon } from "@radix-ui/react-icons";
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import { Button } from "../components/ui/button";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface NavbarProps {
   isDark: boolean;
@@ -13,6 +15,7 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ isDark, setDark }) => {
   const { data: session2 } = useSession();
+  const router = useRouter();
   const [session, setSession] = useState<object>();
 
   useEffect(() => {
@@ -24,7 +27,9 @@ const Navbar: React.FC<NavbarProps> = ({ isDark, setDark }) => {
     >
       <div className="w-1/3"></div>
       <div className="flex items-center justify-center">
-        <Image src={"/logo.png"} alt="logo" width={80} height={80} />
+        <Link href={"/"}>
+          <Image src={"/logo.png"} alt="logo" width={80} height={80} />
+        </Link>
       </div>
       <div className="flex w-1/3 items-center justify-end gap-2 px-8">
         <MoonIcon className="scale-125 text-black" />

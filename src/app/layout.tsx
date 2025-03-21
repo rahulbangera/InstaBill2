@@ -28,7 +28,7 @@ export default function RootLayout({
   }, [dark]);
 
   useEffect(() => {
-    if (pathname === "/dashboard/owner" || pathname === "/dashboard/employee") {
+    if (pathname.startsWith("/dashboard")) {
       setNavbar(false);
     } else {
       setNavbar(true);

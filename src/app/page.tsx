@@ -79,8 +79,7 @@ const Page = () => {
         ) : (
           <div
             className="relative mt-8 inline-block"
-            onMouseEnter={() => setShowDropdown(true)}
-            onMouseLeave={() => setShowDropdown(false)}
+            onClick={() => router.push("/signin")}
           >
             <Button
               className="relative rounded-none border-none bg-gray-100 text-black"
@@ -90,12 +89,11 @@ const Page = () => {
               <CaretRightIcon className="ml-2" />
             </Button>
 
-            {showDropdown && (
+            {/* {showDropdown && (
               <div className="absolute left-0 flex w-full flex-col bg-white shadow-lg transition-opacity duration-300">
                 <Button
                   className="rounded-none border-none bg-gray-300 text-black hover:bg-gray-400"
                   variant={"outline"}
-                  onClick={() => router.push("/signin")}
                 >
                   As an Owner
                 </Button>
@@ -107,7 +105,7 @@ const Page = () => {
                   As an Employee
                 </Button>
               </div>
-            )}
+            )} */}
           </div>
         )}
       </div>

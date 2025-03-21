@@ -97,4 +97,34 @@ export const storesRouter = createTRPCRouter({
         throw new Error("Error creating employee");
       }
     }),
+
+  getStoreDetails: protectedProcedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      const owner = await ctx.db.owner.findUnique({
+        where: {
+          userId: ctx.session.user.id,
+        },
+      });
+
+      if (!owner) {
+        throw new Error("Owner not found");
+      }
+
+      const shop = await ctx.db.shop.findUnique({
+        where: {
+          id: input,
+        },
+      });
+
+      if (!shop) {
+        throw new Error("Shop not found");
+      }
+
+      if (owner.id !== shop.ownerId) {
+        throw new Error("Access denied");
+      }
+
+      return shop;
+    }),
 });
