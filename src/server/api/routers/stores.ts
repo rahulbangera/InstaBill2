@@ -115,6 +115,15 @@ export const storesRouter = createTRPCRouter({
         where: {
           id: input,
         },
+        select: {
+          shopImage: true,
+          name: true,
+          address: true,
+          phone: true,
+          email: true,
+          ownerId: true,
+          products: true,
+        },
       });
 
       if (!shop) {

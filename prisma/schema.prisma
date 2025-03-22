@@ -125,8 +125,10 @@ model Shop {
 model Product {
     id        String     @id @default(cuid())
     name      String
+    image     String?    @db.Text
     price     Float
     shopId    String
+    shortcut  Int
     shop      Shop       @relation(fields: [shopId], references: [id], onDelete: Cascade)
     billItem  BillItem[]
     createdAt DateTime   @default(now())

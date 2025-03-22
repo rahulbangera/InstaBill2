@@ -10,11 +10,30 @@ import ManageItems from "~/app/_components/manageItems";
 import ViewAnalytics from "~/app/_components/viewAnalytics";
 import { motion } from "framer-motion";
 
+interface ShopCompProps {
+  name: string;
+  address: string;
+  phone: string;
+  email: string;
+  shopImage: string;
+  ownerId: string;
+  products: {
+    name: string;
+    id: string;
+    createdAt: Date;
+    shopId: string;
+    price: number;
+    image: string | null;
+    shortcut: number;
+  }[];
+}
+
 export default function ShopComp({ shopid }: { shopid: string }) {
-  const { data, refetch, isFetching } =
-    api.shops.getStoreDetails.useQuery(shopid);
-  const [shopData, setShopData] = useState<Shop | null>(null);
+  const { data, isFetching } = api.shops.getStoreDetails.useQuery(shopid);
+  const [shopData, setShopData] = useState<ShopCompProps | null>(null);
   const [activeTab, setActiveTab] = useState<string>("Employees");
+  const { data: prodData, refetch: fetchProdData } =
+    api.products.getProducts.useQuery(shopid);
 
   const tabs = [
     { name: "Manage Employees", key: "Employees" },
@@ -71,7 +90,7 @@ export default function ShopComp({ shopid }: { shopid: string }) {
 
   return (
     <div className="special flex h-screen w-full flex-col overflow-hidden">
-      <header className="flex items-center justify-between bg-gray-800 p-4 text-white shadow-md">
+      <header className="flex items-center justify-center bg-gray-800 p-4 text-white shadow-md">
         <div className="flex items-center gap-4">
           <Image
             src={shopData?.shopImage || "/shop.png"}
@@ -109,7 +128,13 @@ export default function ShopComp({ shopid }: { shopid: string }) {
 
       <div className="flex-grow p-4">
         {activeTab === "Employees" && <ManageEmployees />}
-        {activeTab === "Items" && <ManageItems />}
+        {activeTab === "Items" && (
+          <ManageItems
+            itemsData={prodData || []}
+            fetchProdData={fetchProdData}
+            shopId={shopid}
+          />
+        )}
         {activeTab === "Analytics" && <ViewAnalytics />}
       </div>
     </div>

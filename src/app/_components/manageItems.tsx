@@ -1,77 +1,62 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { api } from "~/trpc/react";
 
-const manageItems = () => {
-  const itemsData = [
-    {
-      id: 1,
-      name: "Burger",
-      price: 100,
-      shortcutNo: 1,
-    },
-    {
-      id: 2,
-      name: "Pizza",
-      price: 200,
-      shortcutNo: 2,
-    },
-    {
-      id: 3,
-      name: "Pasta",
-      price: 300,
-      shortcutNo: 3,
-    },
-    {
-      id: 4,
-      name: "Sandwich",
-      price: 400,
-      shortcutNo: 4,
-    },
-    {
-      id: 5,
-      name: "Fries",
-      price: 500,
-      shortcutNo: 5,
-    },
-    {
-      id: 6,
-      name: "Salad",
-      price: 600,
-      shortcutNo: 6,
-    },
-    {
-      id: 7,
-      name: "Tacos",
-      price: 700,
-      shortcutNo: 7,
-    },
-    {
-      id: 8,
-      name: "Sushi",
-      price: 800,
-      shortcutNo: 8,
-    },
-    {
-      id: 9,
-      name: "Steak",
-      price: 900,
-      shortcutNo: 9,
-    },
-    {
-      id: 10,
-      name: "Ice Cream",
-      price: 1000,
-      shortcutNo: 10,
-    },
-  ];
+interface ProductsSchema {
+  name: string;
+  id: string;
+  createdAt: Date;
+  shopId: string;
+  price: number;
+  image: string | null;
+  shortcut: number;
+}
 
-  const [filteredItems, setFilteredItems] = React.useState(itemsData);
+const manageItems = ({
+  itemsData,
+  fetchProdData,
+  shopId,
+}: {
+  itemsData: ProductsSchema[];
+  fetchProdData: () => void;
+  shopId: string;
+}) => {
+  const [filteredItems, setFilteredItems] = React.useState<ProductsSchema[]>(
+    [],
+  );
+
+  const [prodName, setProdName] = React.useState("");
+  const [prodPrice, setProdPrice] = React.useState(0);
+  const [prodShortcut, setProdShortcut] = React.useState(0);
+  const [prodImage, setProdImage] = React.useState("");
+
+  const { mutate: createProduct } = api.products.createProduct.useMutation();
+
+  useEffect(() => {
+    setFilteredItems(itemsData);
+  }, [itemsData]);
+
+  const handleProdAdd = async () => {
+    createProduct(
+      {
+        name: prodName,
+        price: prodPrice,
+        shortcut: prodShortcut,
+        shopId: shopId,
+        image: prodImage,
+      },
+      { onSuccess: fetchProdData },
+    );
+    setProdName("");
+    setProdPrice(0);
+    setProdShortcut(0);
+  };
 
   return (
-    <div className="flex h-screen justify-between pt-6">
-      <div className="mr-2 flex-1 px-14 py-10">
+    <div className="mx-auto flex h-screen max-w-[2200px] justify-between">
+      <div className="mb-[200px] mr-2 flex max-w-[800px] flex-1 flex-col justify-center px-14">
         <h1 className="mb-4 text-center text-2xl">Add Item</h1>
-        <div className="h-fit w-full rounded-lg border-2 border-gray-400 bg-transparent p-4">
-          <form className="flex h-full flex-col justify-between space-y-4">
+        <div className="h-fit min-h-[400px] w-full rounded-lg border-2 border-gray-400 bg-transparent p-4">
+          <form className="flex h-full flex-col justify-between space-y-8">
             <div>
               <label
                 htmlFor="itemName"
@@ -82,6 +67,8 @@ const manageItems = () => {
               <input
                 type="text"
                 id="itemName"
+                onChange={(e) => setProdName(e.target.value)}
+                value={prodName}
                 name="itemName"
                 className="mt-1 block w-full rounded-md border-gray-300 bg-gray-600 p-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 placeholder="Enter item name"
@@ -101,6 +88,8 @@ const manageItems = () => {
                 <input
                   type="number"
                   id="itemPrice"
+                  onChange={(e) => setProdPrice(parseFloat(e.target.value))}
+                  value={prodPrice}
                   name="itemPrice"
                   className="mt-1 block w-full rounded-md border-gray-300 bg-gray-600 p-3 pl-8 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   placeholder="Enter item price"
@@ -117,23 +106,26 @@ const manageItems = () => {
               <input
                 type="text"
                 id="shortcutNo"
+                onChange={(e) => setProdShortcut(parseInt(e.target.value))}
+                value={prodShortcut}
                 name="shortcutNo"
                 className="mt-1 block w-full rounded-md border-gray-300 bg-gray-600 p-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 placeholder="Enter shortcut No"
               />
             </div>
             <button
-              type="submit"
-              className="mt-4 inline-flex justify-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              type="button"
+              onClick={handleProdAdd}
+              className="mt-4 inline-flex justify-center rounded-md border border-transparent bg-yellow-700 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-yellow-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >
               Add Item
             </button>
           </form>
         </div>
       </div>
-      <div className="ml-2 flex-1">
+      <div className="mb-[200px] ml-2 flex flex-1 flex-col justify-center">
         <h1 className="mb-4 text-center text-2xl">Added Items</h1>
-        <div className="flex h-4/6 w-full flex-col rounded-lg border-2 border-gray-600 bg-transparent p-4">
+        <div className="flex h-4/5 w-full flex-col rounded-lg border-2 border-gray-600 bg-transparent p-4">
           <div className="mb-4">
             <label
               htmlFor="search"
@@ -152,7 +144,7 @@ const manageItems = () => {
                 const filteredItems = itemsData.filter(
                   (item) =>
                     item.name.toLowerCase().includes(searchTerm) ||
-                    item.shortcutNo.toString().includes(searchTerm),
+                    item.shortcut.toString().includes(searchTerm),
                 );
                 setFilteredItems(filteredItems);
               }}
@@ -172,7 +164,7 @@ const manageItems = () => {
                 </h2>
                 <p className="text-gray-300">Price: ₹{item.price}</p>
                 <p className="text-sm text-gray-400">
-                  shortcut No: {item.shortcutNo}
+                  shortcut No: {item.shortcut}
                 </p>
               </div>
             ))}
