@@ -24,9 +24,9 @@ export default function ShopComp({ shopid }: { shopid: string }) {
 
   useEffect(() => {
     if (data) {
-      setShopData(data); // Only set shopData when data is available
+      setShopData(data);
     }
-  }, [data]); // Ensure it updates when new data is fetched
+  }, [data]);
   const router = useRouter();
   const [activePath, setActivePath] = useState("/dashboard/employees");
 
@@ -40,18 +40,43 @@ export default function ShopComp({ shopid }: { shopid: string }) {
   const tabRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
 
   useEffect(() => {
-    if (tabRefs.current[activeTab]) {
-      const { offsetLeft, offsetWidth } = tabRefs.current[activeTab]!;
-      setUnderlineStyle({ left: offsetLeft, width: offsetWidth });
+    const updateUnderline = () => {
+      if (tabRefs.current[activeTab]) {
+        const { offsetLeft, offsetWidth } = tabRefs.current[activeTab]!;
+        setUnderlineStyle({ left: offsetLeft, width: offsetWidth });
+      }
+    };
+
+    updateUnderline();
+
+    const handleResize = () => {
+      requestAnimationFrame(updateUnderline);
+    };
+    window.addEventListener("resize", handleResize);
+
+    const observer = new ResizeObserver(() => {
+      requestAnimationFrame(updateUnderline);
+    });
+
+    const mainContainer = document.querySelector(".special");
+    if (mainContainer) {
+      observer.observe(mainContainer);
     }
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      observer.disconnect();
+    };
   }, [activeTab]);
+
   return (
-    <div className="flex h-screen w-full flex-col overflow-auto">
+    <div className="special flex h-screen w-full flex-col overflow-hidden">
       <header className="flex items-center justify-between bg-gray-800 p-4 text-white shadow-md">
         <div className="flex items-center gap-4">
           <Image
-            src="/shop-logo.png"
+            src={shopData?.shopImage || "/shop.png"}
             alt="Shop Logo"
+            priority
             width={50}
             height={50}
             className="rounded-full"
