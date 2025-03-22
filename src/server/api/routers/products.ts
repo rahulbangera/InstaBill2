@@ -68,4 +68,29 @@ export const productsRouter = createTRPCRouter({
         },
       });
     }),
+  getProductsForBilling: protectedProcedure.query(async ({ ctx }) => {
+    const employee = await ctx.db.employee.findUnique({
+      where: {
+        userId: ctx.session.user.id,
+      },
+    });
+    if (!employee) {
+      throw new Error("Employee not found");
+    }
+    const shop = await ctx.db.shop.findUnique({
+      where: {
+        id: employee.shopId,
+      },
+    });
+    if (!shop) {
+      throw new Error("Shop not found");
+    }
+    const products = await ctx.db.product.findMany({
+      where: {
+        shopId: shop.id,
+      },
+    });
+
+    return [products, shop];
+  }),
 });
