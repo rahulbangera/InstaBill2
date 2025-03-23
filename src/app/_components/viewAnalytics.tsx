@@ -122,7 +122,7 @@ const ViewAnalytics = ({ shopId }: { shopId: string }) => {
               <BarChart
                 data={salesData}
                 onClick={(data) => {
-                  if (data && data.activeLabel) {
+                    if (data?.activeLabel) {
                     const selectedDay = data.activeLabel;
                     const newDate = `${selectedMonth}-${selectedDay}`;
                     setSelectedDate(newDate);
