@@ -144,6 +144,8 @@ model Bill {
     employeeId    String
     employee      Employee      @relation(fields: [employeeId], references: [id])
     createdAt     DateTime      @default(now())
+    dailySales    DailySales?   @relation(fields: [dailySalesId], references: [id])
+    dailySalesId  String?
 }
 
 model BillItem {
@@ -163,6 +165,7 @@ model DailySales {
     shopId     String
     shop       Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
     date       DateTime
+    bills      Bill[]
     totalSales Float
     totalBills Int
     totalItems Int

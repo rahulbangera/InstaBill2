@@ -135,7 +135,7 @@ export default function ShopComp({ shopid }: { shopid: string }) {
             shopId={shopid}
           />
         )}
-        {activeTab === "Analytics" && <ViewAnalytics />}
+        {activeTab === "Analytics" && <ViewAnalytics shopId={shopid} />}
       </div>
     </div>
   );

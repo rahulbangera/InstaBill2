@@ -7,6 +7,7 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
+    NEXTAUTH_URL: z.string().url(),
     EMAIL_USER: z.string(),
     EMAIL_PASS: z.string(),
     AUTH_SECRET:
@@ -35,6 +36,7 @@ export const env = createEnv({
    * middlewares) or client-side so we need to destruct manually.
    */
   runtimeEnv: {
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     EMAIL_USER: process.env.EMAIL_USER,
     EMAIL_PASS: process.env.EMAIL_PASS,
     AUTH_SECRET: process.env.AUTH_SECRET,

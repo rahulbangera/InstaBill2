@@ -4,7 +4,23 @@ import { getToken } from "next-auth/jwt";
 import { env } from "./env";
 
 export async function middleware(request: NextRequest) {
-  const token = await getToken({
+  // let token = await getToken({
+  //   req: request,
+  //   secret: env.AUTH_SECRET,
+  // });
+  // console.log(env.NODE_ENV);
+  // if (env.NODE_ENV === "production") {
+  //   console.log("Production---------------------------------------"); // DEVELOPMENT , NODE ENV IS NOT WORKING AS EXPECTED
+  //   token = await getToken({
+  //     req: request,
+  //     secret: env.AUTH_SECRET,
+  //     cookieName: "next-auth.session-token",
+  //   });
+  // } else {
+  //   console.log("Development---------------------------------------");
+  // }
+
+  const token = await getToken({ // PRODUCTION
     req: request,
     secret: env.AUTH_SECRET,
     cookieName: "next-auth.session-token",
