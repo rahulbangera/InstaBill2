@@ -23,7 +23,6 @@ enum PaymentMethod {
     CASH
     UPI
     CARD
-    CREDIT
 }
 
 // Necessary for Next auth
@@ -150,8 +149,8 @@ model BillItem {
     id        String   @id @default(cuid())
     billId    String
     bill      Bill     @relation(fields: [billId], references: [id], onDelete: Cascade)
-    productId String
-    product   Product  @relation(fields: [productId], references: [id])
+    productId String?
+    product   Product?  @relation(fields: [productId], references: [id])
     quantity  Int
     price     Float
     createdAt DateTime @default(now())

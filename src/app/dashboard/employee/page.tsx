@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { api } from "~/trpc/react";
 import { Product, Shop } from "@prisma/client";
+import { Trash2Icon } from "lucide-react";
+import { Button } from "~/components/ui/button";
 
 interface Item {
   name: string;
@@ -17,6 +19,7 @@ const page = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [activeIndex, setActiveIndex] = useState<number>(-1);
   const [shopData, setShopData] = useState<Shop | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<string>("cash");
 
   useEffect(() => {
     if (data) {
@@ -70,7 +73,11 @@ const page = () => {
     console.log(inputItem);
   }, [inputItem]);
 
-  const handleAddToBill = (itemName: string, itemPrice: number) => {
+  const handleAddToBill = (
+    itemName: string,
+    itemPrice: number,
+    itemQuantity: number,
+  ) => {
     if (inputItem === "") return;
     const existingItem = itemsData.find((item) => item.name === itemName);
     if (existingItem) {
@@ -78,7 +85,7 @@ const page = () => {
       const newItems = itemsData.map((item) =>
         item.name === itemName
           ? { ...item, quantity: item.quantity + 1 }
-          : item
+          : item,
       );
       setItemsData(newItems);
 
@@ -89,7 +96,7 @@ const page = () => {
       ...prev,
       {
         name: itemName,
-        quantity: 1,
+        quantity: itemQuantity,
         price: itemPrice,
       },
     ]);
@@ -103,25 +110,75 @@ const page = () => {
         product.shortcut?.toString().toLowerCase() === inputItem.toLowerCase(),
     );
 
+    if (filteredProducts.length === 0) return;
+
     if (e.key === "ArrowDown") {
-      setActiveIndex((prev) => (prev + 1) % filteredProducts.length);
+      setActiveIndex((prev) => Math.min(prev + 1, filteredProducts.length - 1));
     } else if (e.key === "ArrowUp") {
-      setActiveIndex((prev) =>
-        prev === 0 ? filteredProducts.length - 1 : prev - 1,
-      );
+      setActiveIndex((prev) => Math.max(prev - 1, 0));
     } else if (e.key === "Enter" && activeIndex >= 0) {
       const selectedProduct = filteredProducts[activeIndex];
       if (selectedProduct) {
-        console.log(selectedProduct);
-        handleAddToBill(selectedProduct.name, selectedProduct.price);
+        handleAddToBill(selectedProduct.name, selectedProduct.price, 1);
         setActiveIndex(-1);
+        setInputItem(""); // Clear input after selection
       }
     }
   };
-  
+
+  useEffect(() => {
+    const filteredProducts = products.filter(
+      (product) =>
+        product.name.toLowerCase().includes(inputItem.toLowerCase()) ||
+        product.shortcut?.toString().toLowerCase() === inputItem.toLowerCase(),
+    );
+
+    if (filteredProducts.length > 0) {
+      setActiveIndex(0);
+    } else {
+      setActiveIndex(-1);
+    }
+  }, [inputItem, products]);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
 
+  const handleDeleteItem = (item: Item) => {
+    const newItems = itemsData.filter((i) => i.name !== item.name);
+    setItemsData(newItems);
+  };
+
+  function handlePaymentMethodChange(value: string): void {
+    setPaymentMethod(value);
+  }
+
+  const handleConfirmBill = () => {
+    if (itemsData.length === 0) {
+      alert("No items in the bill");
+      return;
+    }
+    const hasInvalidPrice = itemsData.some((item) => item.price <= 0);
+    if (hasInvalidPrice) {
+      alert(
+        "Some items have a price of 0 or less. Please correct them before confirming the bill.",
+      );
+      return;
+    }
+    const hasInvalidQuantity = itemsData.some((item) => item.quantity <= 0);
+    if (hasInvalidQuantity) {
+      alert(
+        "Some items have a quantity of 0 or less. Please correct them before confirming the bill.",
+      );
+      return;
+    }
+    const hasInvalidName = itemsData.some((item) => item.name === "");
+    if (hasInvalidName) {
+      alert(
+        "Some items have no name. Please correct them before confirming the bill.",
+      );
+      return;
+    }
+    alert("Bill confirmed");
+  };
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-gray-800 pb-4">
       <div className="flex max-h-screen w-full justify-center border-b-2 border-gray-500 bg-gray-900 p-4">
@@ -158,14 +215,16 @@ const page = () => {
                   <div
                     key={index}
                     onClick={() => {
-                      handleAddToBill(product.name, product.price);
+                      handleAddToBill(product.name, product.price, 1);
                       setActiveIndex(-1);
                     }}
-                    className={`cursor-pointer px-4 py-2 hover:bg-gray-400 ${
-                      index === activeIndex ? "bg-gray-400" : ""
+                    className={`cursor-pointer px-4 py-2 ${
+                      index === activeIndex
+                        ? "bg-gray-400"
+                        : "hover:bg-gray-400"
                     }`}
                   >
-                    {product.name}
+                    {product.shortcut + ". " + product.name}
                   </div>
                 ))}
             </div>
@@ -175,7 +234,7 @@ const page = () => {
           <button
             type="button"
             onClick={() => {
-              handleAddToBill(inputItem, 0);
+              handleAddToBill(inputItem, 0, 0);
             }}
             className="h-10 w-full rounded-lg bg-green-700"
           >
@@ -190,7 +249,7 @@ const page = () => {
               <table className="min-w-full table-auto">
                 <thead className="sticky top-0 bg-gray-700">
                   <tr>
-                    <th className="px-4 py-2">Item Name</th>
+                    <th className="px-4 py-2 pl-14">Item Name</th>
                     <th className="px-4 py-2">Quantity</th>
                     <th className="px-4 py-2">Price</th>
                     <th className="px-4 py-2">Total</th>
@@ -199,13 +258,19 @@ const page = () => {
                 <tbody>
                   {itemsData.map((item, index) => (
                     <tr key={index} className="border-b-[1px] border-gray-700">
-                      <td className="max-w-[200px] overflow-hidden truncate whitespace-nowrap border-gray-500 p-0 focus:border-b-[1px] focus:border-gray-400">
+                      <td className="relative max-w-[200px] overflow-hidden truncate whitespace-nowrap border-gray-500 p-0 focus:border-b-[1px] focus:border-gray-400">
+                        <div className="absolute left-4 translate-y-1/2">
+                          <Trash2Icon
+                            className="cursor-pointer"
+                            onClick={() => handleDeleteItem(item)}
+                          />
+                        </div>
                         <input
                           type="text"
                           name="name"
                           value={item.name}
                           onChange={(e) => handleNameChange(e, index)}
-                          className="block h-full w-full bg-transparent px-4 py-4 text-center outline-none hover:bg-gray-800 focus:bg-gray-800"
+                          className="block h-full w-full bg-transparent px-4 py-4 pl-14 text-center outline-none hover:bg-gray-800 focus:bg-gray-800"
                         />
                       </td>
                       <td className="w-1/5 border-gray-500 p-0 focus:border-b-[1px] focus:border-gray-400">
@@ -214,10 +279,10 @@ const page = () => {
                           name="quantity"
                           value={item.quantity || 0}
                           onChange={(e) => handleQuantityChange(e, index)}
-                          className={`block h-full w-full bg-transparent px-4 py-4 text-center outline-none ${
+                          className={`block h-full w-full px-4 py-4 text-center outline-none ${
                             item.quantity > 0
-                              ? "hover:bg-gray-800 focus:bg-gray-800"
-                              : "bg-red-500/60 hover:bg-gray-800 focus:bg-gray-800"
+                              ? "bg-transparent hover:bg-gray-800 focus:bg-gray-800"
+                              : "bg-red-400/60 hover:bg-gray-800 focus:bg-gray-800"
                           }`}
                         />
                       </td>
@@ -227,10 +292,10 @@ const page = () => {
                           value={`${item.price}`}
                           name="price"
                           onChange={(e) => handlePriceChange(e, index)}
-                          className={`block h-full w-full bg-transparent px-4 py-4 text-center outline-none hover:bg-gray-800 focus:bg-gray-800 ${
-                            item.price > 0
-                              ? "hover:bg-gray-800 focus:bg-gray-800"
-                              : "bg-red-500/60 hover:bg-gray-800 focus:bg-gray-800"
+                          className={`block h-full w-full px-4 py-4 text-center outline-none hover:bg-gray-800 focus:bg-gray-800 ${
+                            item.price !== 0
+                              ? "bg-transparent hover:bg-gray-800 focus:bg-gray-800"
+                              : "bg-red-400/60 hover:bg-gray-800 focus:bg-gray-800"
                           }`}
                         />
                         <span className="absolute right-4 top-1/2 -translate-y-1/2 transform">
@@ -238,7 +303,7 @@ const page = () => {
                         </span>
                       </td>
                       <td className="relative w-1/5 border-gray-500 p-0 text-center focus:border-b-[1px] focus:border-gray-400">
-                        <div className="block h-full w-full bg-transparent px-4 py-4 text-center">
+                        <div className="block h-full w-full cursor-default bg-transparent px-4 py-4 text-center">
                           {item.quantity * item.price}
                         </div>
                         <span className="absolute right-4 top-1/2 -translate-y-1/2 transform">
@@ -252,7 +317,85 @@ const page = () => {
             </div>
           </div>
         </div>
-        <div className="w-1/5 rounded-lg bg-gray-900 p-4"></div>
+        <div className="w-1/5 rounded-lg bg-gray-900">
+          <h1 className="mt-4 text-center text-2xl font-bold underline">
+            Summary
+          </h1>
+          <h2 className="mt-7 text-center text-xl">
+            Total Items:{" "}
+            {itemsData.reduce((total, item) => total + item.quantity, 0)}
+          </h2>
+          <div className="bg-gray-700">
+            <h2 className="mt-5 p-3 text-center text-xl font-bold text-green-500">
+              Final Price:{" "}
+              {itemsData.reduce(
+                (total, item) => total + item.quantity * item.price,
+                0,
+              )}
+              rs
+            </h2>
+          </div>
+          <div className="mt-5 p-4">
+            <h2 className="text-center text-xl font-bold">Payment Method</h2>
+            <div className="mt-4 flex flex-col gap-3">
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="cash"
+                  defaultChecked
+                  onChange={(e) => handlePaymentMethodChange(e.target.value)}
+                  className="h-4 w-4"
+                />
+                <span className="flex gap-1">
+                  Cash{" "}
+                  <img
+                    src="/cash.png"
+                    className="flex h-6 w-6 -translate-y-[2px] items-center"
+                  />
+                </span>{" "}
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="card"
+                  onChange={(e) => handlePaymentMethodChange(e.target.value)}
+                  className="h-4 w-4"
+                />
+                <span className="flex gap-1">
+                  Card{" "}
+                  <img
+                    src="/debitcard.png"
+                    className="flex h-6 w-6 items-center"
+                  />
+                </span>
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="upi"
+                  onChange={(e) => handlePaymentMethodChange(e.target.value)}
+                  className="h-4 w-4"
+                />
+                <span className="flex">
+                  UPI{" "}
+                  <img src="/upi.svg" className="flex h-6 w-6 items-center" />
+                </span>
+              </label>
+            </div>
+          </div>
+          <div className="flex w-full justify-center">
+            <Button
+              onClick={handleConfirmBill}
+              className="mt-4"
+              variant="secondary"
+            >
+              Confirm Bill{" "}
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
