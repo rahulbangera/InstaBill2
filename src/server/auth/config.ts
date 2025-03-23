@@ -54,21 +54,17 @@ export const authConfig: NextAuthConfig = {
         if (!credentials?.email || !credentials.password) {
           return null;
         }
-        console.log("1111111");
 
         const result = signInSchema.safeParse(credentials);
-        console.log(result);
         if (!result.success) {
           return null;
         }
-        console.log("222222");
 
         const user = await db.user.findUnique({
           where: {
             email: credentials.email as string,
           },
         });
-        console.log("333333");
 
         if (!user) {
           return null;
@@ -78,14 +74,10 @@ export const authConfig: NextAuthConfig = {
           credentials.password as string,
           user.password,
         );
-        console.log("44444");
-
-        console.log(isValid);
 
         if (!isValid) {
           return null;
         }
-        console.log("6666");
 
         return user;
       },
@@ -115,14 +107,12 @@ export const authConfig: NextAuthConfig = {
     jwt: async ({ token }) => {
       if (!token.sub) return token;
       const existingUser = await getUserById(token.sub);
-      console.log(existingUser);
       if (existingUser) {
         token.id = existingUser.id;
         token.role = existingUser.role;
         token.name = existingUser.name;
         token.email = existingUser.email;
       }
-      console.log(token);
       return token;
     },
   },

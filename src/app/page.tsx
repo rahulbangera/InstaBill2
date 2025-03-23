@@ -18,10 +18,6 @@ const Page = () => {
   const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
-    console.log(status);
-  }, [session]);
-
-  useEffect(() => {
     const tl = gsap.timeline();
 
     tl.fromTo(

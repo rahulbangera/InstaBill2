@@ -11,7 +11,6 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 
 const OwnerSidebar = () => {
   const pathname = usePathname();
-  console.log(pathname);
   const [collapsed, setCollapsed] = useState(false);
   const [profileModal, setProfileModal] = useState(false);
   const { data: userImage, refetch: getUserImage } =
@@ -138,7 +137,6 @@ const OwnerSidebar = () => {
                 <UploadButton
                   endpoint={"userImageUploader"}
                   onClientUploadComplete={(res) => {
-                    console.log("Upload complete", res);
                     if (image !== "" && image !== userImage) {
                       deleteImage({ url: image });
                     }

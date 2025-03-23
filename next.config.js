@@ -7,13 +7,20 @@ import "./src/env.js";
 /** @type {import("next").NextConfig} */
 const config = {
   images: {
-    domains: ["www.google.com", "sea1.ingest.uploadthing.com"],
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "*.ufs.sh", // Allows any subdomain of ufs.sh
+        hostname: "www.google.com",
       },
-    ], // ✅ Add allowed hostnames
+      {
+        protocol: "https",
+        hostname: "sea1.ingest.uploadthing.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.ufs.sh", 
+      },
+    ], 
   },
 };
 

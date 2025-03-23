@@ -24,9 +24,6 @@ export default function RootLayout({
   const [dark, setDark] = React.useState<boolean>(true);
   const [progress, setProgress] = React.useState<number>(0);
   const [navbar, setNavbar] = React.useState<boolean>(false);
-  useEffect(() => {
-    console.log("RootLayout Re-rendered | dark:", dark);
-  }, [dark]);
 
   useEffect(() => {
     if (pathname.startsWith("/dashboard")) {

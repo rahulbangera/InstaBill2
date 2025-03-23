@@ -92,10 +92,6 @@ const EmployeeDashboard = () => {
     setItemsData(newItems);
   };
 
-  useEffect(() => {
-    console.log(inputItem);
-  }, [inputItem]);
-
   const handleAddToBill = (
     itemName: string,
     itemPrice: number,
@@ -104,7 +100,6 @@ const EmployeeDashboard = () => {
     if (inputItem === "") return;
     const existingItem = itemsData.find((item) => item.name === itemName);
     if (existingItem) {
-      console.log("Item already exists");
       const newItems = itemsData.map((item) =>
         item.name === itemName
           ? { ...item, quantity: item.quantity + 1 }

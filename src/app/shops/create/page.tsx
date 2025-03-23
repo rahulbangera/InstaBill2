@@ -43,10 +43,6 @@ const Page = () => {
   const { mutate: deleteImage } = api.ut.deleteImage.useMutation();
   const { mutate: createStore } = api.shops.createStore.useMutation();
 
-  useEffect(() => {
-    console.log(storeImage);
-  }, [storeImage]);
-
   const addEmployee = () => {
     if (employeeData.name && employeeData.email && employeeData.phone) {
       setEmployees([...employees, employeeData]);
@@ -181,7 +177,7 @@ const Page = () => {
                   onUploadBegin={() => console.log("Uploading----")}
                   onUploadProgress={(progress) => console.log(progress)}
                   onClientUploadComplete={(res) => {
-                    console.log("Upload complete", res);
+                    console.log("Upload complete");
                     setStoreImage(res[0]?.ufsUrl ?? "");
                   }}
                   onUploadError={(error) => console.error(error)}

@@ -15,10 +15,6 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ isDark, setDark }) => {
   const { data: session2 } = useSession();
-
-  useEffect(() => {
-    console.log("Navbar re-rendered | isDark:", isDark);
-  }, [isDark]);
   return (
     <nav
       className={`flex w-full items-center justify-between bg-gray-800 px-2`}

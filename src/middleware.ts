@@ -4,13 +4,15 @@ import { getToken } from "next-auth/jwt";
 import { env } from "./env";
 
 export async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request, secret: env.AUTH_SECRET });
-
+  const token = await getToken({
+    req: request,
+    secret: env.AUTH_SECRET,
+    cookieName: "next-auth.session-token",
+  });
   if (request.nextUrl.pathname === "/signin") {
     return NextResponse.redirect(new URL("/auth/signin", request.url));
   }
   if (request.nextUrl.pathname === "/dashboard") {
-    console.log(token);
     if (token) {
       if (token.role === "OWNER") {
         return NextResponse.redirect(new URL("/dashboard/owner", request.url));

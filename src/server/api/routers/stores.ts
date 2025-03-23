@@ -48,9 +48,6 @@ export const storesRouter = createTRPCRouter({
       });
 
       try {
-        console.log(
-          "-------------------------Creating employees---------------------------",
-        );
         const transporter = nodemailer.createTransport({
           service: "gmail",
           auth: {
@@ -58,15 +55,7 @@ export const storesRouter = createTRPCRouter({
             pass: env.EMAIL_PASS,
           },
         });
-        console.log(
-          "-----------------------Transporter created--------------------------",
-        );
-        console.log(input.employees);
         for (const employee of input.employees) {
-          console.log(
-            "-----------------------Creating employee--------------------------",
-            employee,
-          );
           const password = randomBytes(8).toString("hex");
           const hashedPassword = await hash(password, 10);
 

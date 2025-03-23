@@ -10,7 +10,6 @@ const Dashboard = () => {
   const router = useRouter();
   const session = useSession();
   useEffect(() => {
-    console.log(session);
     if (!session.data) {
       router.push("/signin");
     }
