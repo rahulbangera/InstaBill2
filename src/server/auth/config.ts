@@ -94,6 +94,17 @@ export const authConfig: NextAuthConfig = {
      * @see https://next-auth.js.org/providers/github
      */
   ],
+  cookies: {
+    sessionToken: {
+      name: "next-auth.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+      },
+    },
+  },
   trustHost: true,
   callbacks: {
     session: async ({ session, token }) => {
