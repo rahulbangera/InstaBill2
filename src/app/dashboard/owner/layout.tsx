@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import OwnerSidebar from "~/app/_components/ownerSidebar";
 
-export default function RootLayout({
+export default function OwnerDashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (

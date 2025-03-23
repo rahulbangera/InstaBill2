@@ -11,7 +11,7 @@ import { UploadButton } from "~/utils/uploadthing";
 import { useSession } from "next-auth/react";
 import OwnerSidebar from "~/app/_components/ownerSidebar";
 
-const Page = () => {
+const OwnerDashboard = () => {
   const router = useRouter();
   const [profileModal, setProfileModal] = useState(false);
   const { data: userImage, refetch: getUserImage } =
@@ -115,4 +115,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default OwnerDashboard;
