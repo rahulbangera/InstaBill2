@@ -65,7 +65,7 @@ const ViewAnalytics = ({ shopId }: { shopId: string }) => {
     });
 
   useEffect(() => {
-    fetchMonthlySalesData();
+    void fetchMonthlySalesData();
   }, [selectedMonth]);
 
   useEffect(() => {
@@ -88,7 +88,7 @@ const ViewAnalytics = ({ shopId }: { shopId: string }) => {
   }, [fetchedDailySalesData]);
 
   useEffect(() => {
-    fetchDailySalesData();
+    void fetchDailySalesData();
   }, [selectedDate]);
 
   return (
@@ -103,7 +103,7 @@ const ViewAnalytics = ({ shopId }: { shopId: string }) => {
             onChange={(e) => setSelectedMonth(e.target.value)}
             className="mb-2 rounded border p-2"
           >
-            {[...Array(12)].map((_, i) => {
+            {Array.from({ length: 12 }).map((_, i) => {
               const month = format(new Date().setMonth(i), "yyyy-MM");
               return (
                 <option key={month} value={month}>
