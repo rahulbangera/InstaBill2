@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { api } from "~/trpc/react";
 
 interface ProductsSchema {
@@ -11,7 +11,7 @@ interface ProductsSchema {
   shortcut: number;
 }
 
-const manageItems = ({
+const ManageItems = ({
   itemsData,
   fetchProdData,
   shopId,
@@ -20,14 +20,12 @@ const manageItems = ({
   fetchProdData: () => void;
   shopId: string;
 }) => {
-  const [filteredItems, setFilteredItems] = React.useState<ProductsSchema[]>(
-    [],
-  );
+  const [filteredItems, setFilteredItems] = useState<ProductsSchema[]>([]);
 
-  const [prodName, setProdName] = React.useState("");
-  const [prodPrice, setProdPrice] = React.useState(0);
-  const [prodShortcut, setProdShortcut] = React.useState(0);
-  const [prodImage, setProdImage] = React.useState("");
+  const [prodName, setProdName] = useState("");
+  const [prodPrice, setProdPrice] = useState(0);
+  const [prodShortcut, setProdShortcut] = useState(0);
+  const [prodImage, setProdImage] = useState("");
 
   const { mutate: createProduct } = api.products.createProduct.useMutation();
 
@@ -116,7 +114,7 @@ const manageItems = ({
             <button
               type="button"
               onClick={handleProdAdd}
-              className="mt-4 inline-flex justify-center rounded-md border border-transparent bg-yellow-700 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-yellow-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              className="mt-4 inline-flex justify-center rounded-md border border-transparent bg-yellow-700 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-yellow-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >
               Add Item
             </button>
@@ -175,4 +173,4 @@ const manageItems = ({
   );
 };
 
-export default manageItems;
+export default ManageItems;

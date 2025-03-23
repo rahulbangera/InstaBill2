@@ -38,7 +38,7 @@ const OwnerSidebar = () => {
     }
     updateImage({ url: image });
     setProfileModal(false);
-    getUserImage();
+    void getUserImage();
   };
 
   useEffect(() => {

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 
-const signin = () => {
+const Signin = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
@@ -82,7 +82,7 @@ const signin = () => {
             Sign In
           </Button>
           <h2 className="text-gray-200">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link
               href={"/auth/signup"}
               className="font-bold hover:text-gray-100 hover:underline"
@@ -96,4 +96,4 @@ const signin = () => {
   );
 };
 
-export default signin;
+export default Signin;

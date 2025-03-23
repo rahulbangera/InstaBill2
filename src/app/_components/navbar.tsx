@@ -15,8 +15,6 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ isDark, setDark }) => {
   const { data: session2 } = useSession();
-  const router = useRouter();
-  const [session, setSession] = useState<object>();
 
   useEffect(() => {
     console.log("Navbar re-rendered | isDark:", isDark);

@@ -56,11 +56,11 @@ export default function ShopComp({ shopid }: { shopid: string }) {
 
   const [underlineStyle, setUnderlineStyle] = useState({ left: 0, width: 0 });
 
-  const tabRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
+  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   useEffect(() => {
     const updateUnderline = () => {
-      if (tabRefs.current[activeTab]) {
+      if (tabRefs.current) {
         const { offsetLeft, offsetWidth } = tabRefs.current[activeTab]!;
         setUnderlineStyle({ left: offsetLeft, width: offsetWidth });
       }
@@ -93,7 +93,7 @@ export default function ShopComp({ shopid }: { shopid: string }) {
       <header className="flex items-center justify-center bg-gray-800 p-4 text-white shadow-md">
         <div className="flex items-center gap-4">
           <Image
-            src={shopData?.shopImage || "/shop.png"}
+            src={shopData?.shopImage ?? "/shop.png"}
             alt="Shop Logo"
             priority
             width={50}
@@ -130,7 +130,7 @@ export default function ShopComp({ shopid }: { shopid: string }) {
         {activeTab === "Employees" && <ManageEmployees />}
         {activeTab === "Items" && (
           <ManageItems
-            itemsData={prodData || []}
+            itemsData={prodData ?? []}
             fetchProdData={fetchProdData}
             shopId={shopid}
           />

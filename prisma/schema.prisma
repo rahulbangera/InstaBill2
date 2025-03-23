@@ -140,6 +140,7 @@ model Bill {
     items         BillItem[]
     total         Float
     paymentMethod PaymentMethod
+    discount      Float         @default(0)
     employeeId    String
     employee      Employee      @relation(fields: [employeeId], references: [id])
     createdAt     DateTime      @default(now())
@@ -150,7 +151,8 @@ model BillItem {
     billId    String
     bill      Bill     @relation(fields: [billId], references: [id], onDelete: Cascade)
     productId String?
-    product   Product?  @relation(fields: [productId], references: [id])
+    product   Product? @relation(fields: [productId], references: [id])
+    name      String
     quantity  Int
     price     Float
     createdAt DateTime @default(now())

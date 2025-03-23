@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import { api } from "~/trpc/react";
-import { Product, Shop } from "@prisma/client";
+import type { Product, Shop } from "@prisma/client";
 import { Trash2Icon } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import { toast } from "sonner";
 
 interface Item {
   name: string;
@@ -12,14 +13,36 @@ interface Item {
   price: number;
 }
 
-const page = () => {
+interface BillType {
+  shopId: string | undefined;
+  paymentMethod: PaymentMethod;
+  total: number;
+  discount: number;
+  items: {
+    name: string;
+    price: number;
+    quantity: number;
+    productId: string | undefined;
+  }[];
+}
+
+enum PaymentMethod {
+  CASH = "CASH",
+  CARD = "CARD",
+  UPI = "UPI",
+}
+
+const EmployeeDashboard = () => {
   const { data } = api.products.getProductsForBilling.useQuery();
   const [inputItem, setInputItem] = useState<string>("");
   const [itemsData, setItemsData] = useState<Item[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [activeIndex, setActiveIndex] = useState<number>(-1);
   const [shopData, setShopData] = useState<Shop | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<string>("cash");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
+    PaymentMethod.CASH,
+  );
+  const { mutate: createBill } = api.billing.createBilling.useMutation();
 
   useEffect(() => {
     if (data) {
@@ -148,8 +171,54 @@ const page = () => {
   };
 
   function handlePaymentMethodChange(value: string): void {
-    setPaymentMethod(value);
+    setPaymentMethod(value as PaymentMethod);
   }
+
+  const saveToLocal = () => {
+    const bill = {
+      shopId: shopData?.id,
+      paymentMethod: paymentMethod,
+      total: itemsData.reduce(
+        (total, item) => total + item.quantity * item.price,
+        0,
+      ),
+      discount: 0,
+      items: itemsData.map((item) => {
+        return {
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          productId:
+            products.find(
+              (product) =>
+                product.name === item.name && product.price === item.price,
+            )?.id ?? undefined,
+        };
+      }),
+    };
+    if (typeof window !== "undefined") {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const bills: BillType[] = JSON.parse(
+        localStorage.getItem("bills") ?? "[]",
+      );
+      bills.push(bill);
+      localStorage.setItem("bills", JSON.stringify(bills));
+      setItemsData([]);
+      toast.success("Saved to local storage");
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const bills: BillType[] = JSON.parse(
+        localStorage.getItem("bills") ?? "[]",
+      );
+      if (bills && bills.length > 0) {
+        setItemsData(bills[bills.length - 1]?.items ?? []);
+      }
+    }
+  }, []);
 
   const handleConfirmBill = () => {
     if (itemsData.length === 0) {
@@ -177,7 +246,47 @@ const page = () => {
       );
       return;
     }
-    alert("Bill confirmed");
+    const total = itemsData.reduce(
+      (total, item) => total + item.quantity * item.price,
+      0,
+    );
+    toast.loading("Creating Bill");
+
+    if (shopData?.id) {
+      createBill(
+        {
+          shopId: shopData?.id,
+          paymentMethod: paymentMethod,
+          total: total,
+          discount: 0,
+          items: itemsData.map((item) => {
+            return {
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+              productId:
+                products.find(
+                  (product) =>
+                    product.name === item.name && product.price === item.price,
+                )?.id ?? undefined,
+            };
+          }),
+        },
+        {
+          onSuccess: () => {
+            setItemsData([]);
+            toast.dismiss();
+            toast.success("Bill created successfully");
+          },
+          onError: () => {
+            toast.error("Network Error, don't worry bills are safe");
+            saveToLocal();
+          },
+        },
+      );
+    } else {
+      toast.error("Error fetching, Shop not found, still bill created locally");
+    }
   };
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-gray-800 pb-4">
@@ -342,7 +451,7 @@ const page = () => {
                 <input
                   type="radio"
                   name="paymentMethod"
-                  value="cash"
+                  value={PaymentMethod.CASH}
                   defaultChecked
                   onChange={(e) => handlePaymentMethodChange(e.target.value)}
                   className="h-4 w-4"
@@ -359,7 +468,7 @@ const page = () => {
                 <input
                   type="radio"
                   name="paymentMethod"
-                  value="card"
+                  value={PaymentMethod.CARD}
                   onChange={(e) => handlePaymentMethodChange(e.target.value)}
                   className="h-4 w-4"
                 />
@@ -375,7 +484,7 @@ const page = () => {
                 <input
                   type="radio"
                   name="paymentMethod"
-                  value="upi"
+                  value={PaymentMethod.UPI}
                   onChange={(e) => handlePaymentMethodChange(e.target.value)}
                   className="h-4 w-4"
                 />
@@ -401,4 +510,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default EmployeeDashboard;

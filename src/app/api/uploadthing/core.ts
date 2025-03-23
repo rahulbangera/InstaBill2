@@ -29,10 +29,10 @@ export const ourFileRouter = {
       console.log(req);
       const user = await auth(req);
       // If you throw, the user will not be able to upload
-      if (!user) throw new UploadThingError("Unauthorized");
+      if (!user) throw new UploadThingError("Unauthorized") as Error;
 
       // Whatever is returned here is accessible in onUploadComplete as `metadata`
-      return { userId: user.email as string };
+      return { userId: user.email! };
     })
     .onUploadComplete(async ({ metadata, file }) => {
       // This code RUNS ON YOUR SERVER after upload
@@ -59,7 +59,7 @@ export const ourFileRouter = {
       console.log(req);
       const user = await auth(req);
       // If you throw, the user will not be able to upload
-      if (!user) throw new UploadThingError("Unauthorized");
+      if (!user) throw new UploadThingError("Unauthorized") as Error;
 
       // Whatever is returned here is accessible in onUploadComplete as `metadata`
       return { userId: user.id as string };
@@ -89,7 +89,7 @@ export const ourFileRouter = {
       console.log(req);
       const user = await auth(req);
       // If you throw, the user will not be able to upload
-      if (!user) throw new UploadThingError("Unauthorized");
+      if (!user) throw new UploadThingError("Unauthorized") as Error;
 
       // Whatever is returned here is accessible in onUploadComplete as `metadata`
       return { userId: user.id as string };

@@ -13,7 +13,7 @@ interface Todo {
   done?: boolean;
 }
 
-const page = () => {
+const Dumped = () => {
   const [newTodo, setNewTodo] = React.useState<string>("");
   const { data: todos, refetch: getTodos } = api.todo.getTodos.useQuery();
   const { mutate: createTodo } = api.todo.create.useMutation();
@@ -28,7 +28,7 @@ const page = () => {
         toast.loading("Adding todo...", { position: "top-right" });
         createTodo(newTodo, {
           onSuccess: () => {
-            getTodos();
+            void getTodos();
             setNewTodo("");
             toast.success("Todo added successfully");
           },
@@ -147,4 +147,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Dumped;

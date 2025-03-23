@@ -35,7 +35,7 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authConfig: NextAuthConfig = {
-  adapter: PrismaAdapter(db) as any,
+  adapter: PrismaAdapter(db),
   providers: [
     Credentials({
       name: "Credentials",
@@ -51,7 +51,7 @@ export const authConfig: NextAuthConfig = {
         },
       },
       async authorize(credentials) {
-        if (!credentials || !credentials.email || !credentials.password) {
+        if (!credentials?.email || !credentials.password) {
           return null;
         }
         console.log("1111111");
@@ -102,6 +102,7 @@ export const authConfig: NextAuthConfig = {
      * @see https://next-auth.js.org/providers/github
      */
   ],
+  trustHost: true,
   callbacks: {
     session: async ({ session, token }) => {
       if (token.sub && session.user) {

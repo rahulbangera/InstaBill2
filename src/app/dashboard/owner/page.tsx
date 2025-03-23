@@ -22,26 +22,26 @@ const Page = () => {
   const { data: storesData } = api.shops.getStores.useQuery();
   const { data: session } = useSession();
 
-  const handleImageCancel = () => {
-    setProfileModal(false);
-    if (image !== "" && image !== userImage) {
-      deleteImage({ url: image });
-    }
-    if (userImage) {
-      setImage(userImage);
-    }
-  };
+  // const handleImageCancel = () => {
+  //   setProfileModal(false);
+  //   if (image !== "" && image !== userImage) {
+  //     deleteImage({ url: image });
+  //   }
+  //   if (userImage) {
+  //     setImage(userImage);
+  //   }
+  // };
 
-  const handleImageUpdate = async () => {
-    if (userImage) {
-      if (image !== "" && image !== userImage) {
-        deleteImage({ url: userImage });
-      }
-    }
-    updateImage({ url: image });
-    setProfileModal(false);
-    getUserImage();
-  };
+  // const handleImageUpdate = async () => {
+  //   if (userImage) {
+  //     if (image !== "" && image !== userImage) {
+  //       deleteImage({ url: userImage });
+  //     }
+  //   }
+  //   updateImage({ url: image });
+  //   setProfileModal(false);
+  //   void getUserImage();
+  // };
 
   useEffect(() => {
     if (userImage) {
@@ -54,7 +54,7 @@ const Page = () => {
   return (
     <>
       <div className="flex h-1/4 items-center border-b-2 border-gray-600 pl-12">
-        <h1 className="text-5xl">Welcome {session && session?.user.name}!</h1>
+        <h1 className="text-5xl">Welcome {session ? session?.user.name : null}!</h1>
       </div>
       <div className="p-4">
         {storesData?.length === 0 ? (

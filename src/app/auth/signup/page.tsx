@@ -6,7 +6,7 @@ import { api } from "~/trpc/react";
 import Link from "next/link";
 import Image from "next/image";
 
-const signin = () => {
+const SignUp = () => {
   const router = useRouter();
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -117,4 +117,4 @@ const signin = () => {
   );
 };
 
-export default signin;
+export default SignUp;

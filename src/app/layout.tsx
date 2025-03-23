@@ -11,6 +11,7 @@ import Image from "next/image";
 import { SessionProvider } from "next-auth/react";
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
+import { Toaster } from "~/components/ui/sonner";
 
 import { ourFileRouter } from "~/app/api/uploadthing/core";
 
@@ -34,7 +35,7 @@ export default function RootLayout({
       setNavbar(true);
     }
     if (isHomePage) {
-      let interval = setInterval(() => {
+      const interval = setInterval(() => {
         setProgress((prev) => {
           if (prev >= 100) {
             clearInterval(interval);
@@ -68,8 +69,9 @@ export default function RootLayout({
             />
             {navbar && <Navbar isDark={dark} setDark={setDark} />}
             {children}
+            <Toaster position="top-center" className="bg-[#1e201e] text-white" />
 
-            {/* {loading && isHomePage && (
+            {loading && isHomePage && (
               <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gray-900 text-white">
                 <Image
                   src={"/logo1.png"}
@@ -84,7 +86,7 @@ export default function RootLayout({
                   max={100}
                 />{" "}
               </div>
-            )} */}
+            )}
           </SessionProvider>
         </TRPCReactProvider>
       </body>
