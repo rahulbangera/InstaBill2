@@ -50,7 +50,7 @@ const OwnerSidebar = () => {
 
   return (
     <div
-      className={`relative overflow-hidden h-full ${collapsed ? "w-[80px]" : "w-[240px]"} flex-shrink-0 bg-gray-600 transition-all duration-300 ease-in-out`}
+      className={`relative overflow-hidden h-full ${collapsed ? "w-[80px]" : "w-[240px]"} flex-shrink-0 bg-gray-600 transition-all duration-300 ease-in-out z-[9999]`}
     >
       <button
         onClick={() => setCollapsed(!collapsed)}

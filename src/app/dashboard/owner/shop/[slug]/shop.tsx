@@ -89,7 +89,7 @@ export default function ShopComp({ shopid }: { shopid: string }) {
   }, [activeTab]);
 
   return (
-    <div className="special flex h-screen w-full flex-col overflow-hidden">
+    <div className="special flex h-screen w-full flex-col overflow-auto">
       <header className="flex items-center justify-center bg-gray-800 p-4 text-white shadow-md">
         <div className="flex items-center gap-4">
           <Image
@@ -104,7 +104,7 @@ export default function ShopComp({ shopid }: { shopid: string }) {
         </div>
       </header>
 
-      <nav className="relative flex justify-center bg-gray-700 p-2 text-white">
+      <nav className="sticky top-0 flex justify-center bg-black/40 p-2 text-white z-50">
         {tabs.map((tab) => (
           <button
             key={tab.key}
@@ -126,7 +126,7 @@ export default function ShopComp({ shopid }: { shopid: string }) {
         />
       </nav>
 
-      <div className="flex-grow p-4">
+      <div className="flex-grow">
         {activeTab === "Employees" && <ManageEmployees />}
         {activeTab === "Items" && (
           <ManageItems

@@ -14,7 +14,7 @@ export default function OwnerDashboardLayout({
         <OwnerSidebar />
 
         {/* Main Content */}
-        <div className="flex-1 bg-gray-900">{children}</div>
+        <div className="flex-1 bg-gray-900 overflow-auto">{children}</div>
       </div>
     </>
   );

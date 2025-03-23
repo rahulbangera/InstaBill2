@@ -50,7 +50,7 @@ const ManageItems = ({
   };
 
   return (
-    <div className="mx-auto flex h-screen max-w-[2200px] justify-between">
+    <div className="mx-auto flex h-screen max-w-[2200px] justify-between p-4">
       <div className="mb-[200px] mr-2 flex max-w-[800px] flex-1 flex-col justify-center px-14">
         <h1 className="mb-4 text-center text-2xl">Add Item</h1>
         <div className="h-fit min-h-[400px] w-full rounded-lg border-2 border-gray-400 bg-transparent p-4">
