@@ -6,7 +6,11 @@ import { UploadThingError } from "uploadthing/server";
 const f = createUploadthing();
 
 const auth = async (req: Request) => {
-  const token = await getToken({ req: req, secret: env.AUTH_SECRET });
+  const token = await getToken({
+    req: req,
+    secret: env.AUTH_SECRET,
+    cookieName: "next-auth.session-token",
+  });
   return token;
 }; // Fake auth function
 
@@ -36,7 +40,6 @@ export const ourFileRouter = {
     .onUploadComplete(async ({ metadata, file }) => {
       // This code RUNS ON YOUR SERVER after upload
 
-
       // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
       return { uploadedBy: metadata.userId };
     }),
@@ -63,7 +66,6 @@ export const ourFileRouter = {
     .onUploadComplete(async ({ metadata, file }) => {
       // This code RUNS ON YOUR SERVER after upload
 
-
       // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
       return { uploadedBy: metadata.userId };
     }),
@@ -89,7 +91,6 @@ export const ourFileRouter = {
     })
     .onUploadComplete(async ({ metadata, file }) => {
       // This code RUNS ON YOUR SERVER after upload
-
 
       // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
       return { uploadedBy: metadata.userId };

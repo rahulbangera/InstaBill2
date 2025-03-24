@@ -20,7 +20,8 @@ export async function middleware(request: NextRequest) {
   //   console.log("Development---------------------------------------");
   // }
 
-  const token = await getToken({ // PRODUCTION
+  const token = await getToken({
+    // PRODUCTION
     req: request,
     secret: env.AUTH_SECRET,
     cookieName: "next-auth.session-token",
