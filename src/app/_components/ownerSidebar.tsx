@@ -71,7 +71,7 @@ const OwnerSidebar = () => {
         className="group relative aspect-square w-1/2 overflow-hidden rounded-full"
       >
         <Image
-          src={userImage || "/profile.png"}
+          src={userImage ?? "/profile.png"}
           fill
           priority
           className="cursor-pointer rounded-full object-cover group-hover:bg-black group-hover:opacity-50"
