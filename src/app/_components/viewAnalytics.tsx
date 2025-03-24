@@ -88,7 +88,12 @@ const ViewAnalytics = ({ shopId }: { shopId: string }) => {
 
   useEffect(() => {
     if (fetchedDailySalesData) {
-      setBills(fetchedDailySalesData);
+      setBills(
+        [...fetchedDailySalesData].sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        ),
+      );
     }
   }, [fetchedDailySalesData]);
 
@@ -99,47 +104,48 @@ const ViewAnalytics = ({ shopId }: { shopId: string }) => {
   return (
     <div className="space-y-8">
       <div className="mt-6 flex w-full justify-center">
-        <Card className="w-3/4 max-w-[1200px] bg-gray-700/60 p-4">
-          <CardContent>
-            <h2 className="mb-2 text-xl font-semibold">
-              Sales Overview - {selectedMonth}
-            </h2>
-            <select
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
-              className="mb-2 rounded border p-2"
-            >
-              {Array.from({ length: 12 }).map((_, i) => {
-                const month = format(new Date().setMonth(i), "yyyy-MM");
-                return (
-                  <option key={month} value={month}>
-                    {month}
-                  </option>
-                );
-              })}
-            </select>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart
-                data={salesData}
-                onClick={(data) => {
-                    if (data?.activeLabel) {
-                    const selectedDay = data.activeLabel;
-                    const newDate = `${selectedMonth}-${selectedDay}`;
-                    setSelectedDate(newDate);
-                  }
-                }}
-              >
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="sales" fill="#8884d8" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
+  <Card className="w-3/4 max-w-[1200px] bg-gray-800/70 p-4 border border-gray-700">
+    <CardContent>
+      <h2 className="mb-2 text-xl font-semibold text-gray-200">
+        Sales Overview - {selectedMonth}
+      </h2>
+      <select
+        value={selectedMonth}
+        onChange={(e) => setSelectedMonth(e.target.value)}
+        className="mb-2 rounded border border-gray-600 bg-gray-800 p-2 text-gray-200"
+      >
+        {Array.from({ length: 12 }).map((_, i) => {
+          const month = format(new Date().setMonth(i), "yyyy-MM");
+          return (
+            <option key={month} value={month}>
+              {month}
+            </option>
+          );
+        })}
+      </select>
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart
+          data={salesData}
+          onClick={(data) => {
+            if (data?.activeLabel) {
+              const selectedDay = data.activeLabel;
+              const newDate = `${selectedMonth}-${selectedDay}`;
+              setSelectedDate(newDate);
+            }
+          }}
+        >
+          <XAxis dataKey="date" stroke="gray" />
+          <YAxis stroke="gray" />
+          <Tooltip contentStyle={{ backgroundColor: "#1E293B", color: "#FACC15" }} />
+          <Bar dataKey="sales" fill="#60A5FA" />
+        </BarChart>
+      </ResponsiveContainer>
+    </CardContent>
+  </Card>
+</div>
+
       <div className="flex w-full justify-center">
-        <div className="flex w-full max-w-[1800px] justify-center border-none bg-gray-700/45 p-8">
+        <div className="flex w-full max-w-[1800px] justify-center border-none bg-gray-700/20 p-8">
           <div>
             <h2 className="mb-2 text-center text-xl font-semibold">
               Day-wise Bills - {selectedDate}
@@ -149,7 +155,7 @@ const ViewAnalytics = ({ shopId }: { shopId: string }) => {
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="mb-4 rounded border p-2 text-black bg-gray-500"
+                className="mb-4 rounded border bg-gray-600 p-2 text-black"
               />
             </div>
             {/* <ul className="">
@@ -162,34 +168,37 @@ const ViewAnalytics = ({ shopId }: { shopId: string }) => {
           </ul> */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {bills.map((bill) => (
-                <Card key={bill.id} className="bg-gray-700 p-4 border-gray-600 min-w-[380px] ">
+                <Card
+                  key={bill.id}
+                  className="min-w-[380px] border-gray-500 bg-slate-800 p-4 text-lg"
+                >
                   <CardContent>
-                    {/* <h3 className="mb-2 text-lg font-semibold">
-                      Bill ID: {bill.id}
-                    </h3> */}
-                    <p className="mb-1">
-                      <span className="font-medium">Payment Method:</span>{" "}
+                    <h3 className="mb-1 text-lg font-semibold text-gray-200">
+                      Billing Time:{" "}
+                      <span className="text-gray-100">
+                        {bill.createdAt.toLocaleTimeString()}
+                      </span>
+                    </h3>
+                    <p className="mb-1 text-gray-300">
+                      <span className="font-medium text-blue-400">
+                        Payment Method:
+                      </span>{" "}
                       {bill.paymentMethod}
                     </p>
-                    <p className="mb-1">
-                      <span className="font-medium">Total:</span> ₹{bill.total}
+                    <p className="mb-1 text-gray-300">
+                      <span className="font-medium text-green-400">Total:</span>{" "}
+                      ₹{bill.total}
                     </p>
-                    <p className="mb-1">
-                      <span className="font-medium">Discount:</span> ₹
-                      {bill.discount}
+                    <p className="mb-1 text-gray-300">
+                      <span className="font-medium text-red-400">
+                        Discount:
+                      </span>{" "}
+                      ₹{bill.discount}
                     </p>
-                    <p className="mb-1">
-                      <span className="font-medium">Date:</span>{" "}
+                    <p className="mb-1 text-gray-300">
+                      <span className="font-medium text-gray-400">Date:</span>{" "}
                       {format(new Date(bill.createdAt), "yyyy-MM-dd")}
                     </p>
-                    <div className="mt-4 flex justify-between">
-                      <button className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">
-                        View Bill
-                      </button>
-                      <button className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600">
-                        Print Invoice
-                      </button>
-                    </div>
                   </CardContent>
                 </Card>
               ))}

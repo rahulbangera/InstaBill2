@@ -38,7 +38,7 @@ const SignUp = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <div className="w-full max-w-md space-y-6 rounded-xl bg-gray-700 p-8 shadow-md">
+      <div className="w-full max-w-md space-y-6 rounded-xl bg-gray-800 p-8 shadow-md">
         <h2 className="text-center text-2xl font-bold text-gray-200">
           Sign Up
         </h2>
@@ -57,7 +57,7 @@ const SignUp = () => {
               placeholder="Name"
               required
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full rounded border border-gray-500 bg-gray-600 px-3 py-2 text-black outline-none focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+              className="mt-1 w-full rounded border border-gray-500 bg-gray-700 px-3 py-2 text-black outline-none focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
             />
           </div>
           <div>
@@ -74,7 +74,7 @@ const SignUp = () => {
               name="email"
               required
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded border border-gray-500 bg-gray-600 px-3 py-2 text-black outline-none focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+              className="mt-1 w-full rounded border border-gray-500 bg-gray-700 px-3 py-2 text-black outline-none focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
             />
           </div>
           <div>
@@ -91,7 +91,7 @@ const SignUp = () => {
               name="password"
               required
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded border border-gray-500 bg-gray-600 px-3 py-2 text-black outline-none focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+              className="mt-1 w-full rounded border border-gray-500 bg-gray-700 px-3 py-2 text-black outline-none focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
             />
           </div>
           <Button
@@ -102,11 +102,11 @@ const SignUp = () => {
           >
             Sign Up
           </Button>
-          <h2 className="text-gray-200">
+          <h2 className="text-gray-300">
             Already have an account?{" "}
             <Link
               href={"/auth/signin"}
-              className="font-bold hover:text-gray-100 hover:underline"
+              className="font-bold text-indigo-400 hover:text-indigo-300 hover:underline"
             >
               Log In
             </Link>

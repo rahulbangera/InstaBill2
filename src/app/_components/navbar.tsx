@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { Button } from "../components/ui/button";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { toast } from "sonner";
 
 interface NavbarProps {
   isDark: boolean;
@@ -28,8 +29,11 @@ const Navbar: React.FC<NavbarProps> = ({ isDark, setDark }) => {
       <div className="flex w-1/3 items-center justify-end gap-2 px-8">
         <MoonIcon className="scale-125 text-black" />
         <Switch
-          className="bg-white"
-          onCheckedChange={() => setDark((prev) => !prev)}
+          style={{ backgroundColor: "black", opacity: "0.2", cursor: "default" }}
+          className="bg-gray-900 text-orange-950"
+          onClick={() => toast.info("Light Mode Coming Soon", {duration: 1000})}
+          checked={false}
+          // onCheckedChange={() => setDark((prev) => !prev)}
         />
         <SunIcon className="scale-125 text-black" />
         {session2 ? (

@@ -26,7 +26,7 @@ const Page = () => {
       { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" },
     )
       .to(textRef.current, {
-        text: "InstaBill",
+        text: "InstaBiller",
         duration: 1.5,
         ease: "power2.inOut",
       })
@@ -50,7 +50,7 @@ const Page = () => {
           ref={textRef}
           className="opacity-1 min-h-[8rem] whitespace-pre text-4xl font-bold sm:text-4xl md:text-9xl 2xl:text-[7vw]"
         >
-          InstaBill
+          InstaBiller
         </h1>
         <h2
           ref={subtextRef}
