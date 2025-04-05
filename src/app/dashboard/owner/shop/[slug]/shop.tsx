@@ -13,6 +13,7 @@ import { motion } from "framer-motion";
 interface ShopCompProps {
   name: string;
   address: string;
+  shopId: string | null;
   phone: string;
   email: string;
   shopImage: string;
@@ -20,6 +21,7 @@ interface ShopCompProps {
   products: {
     name: string;
     id: string;
+    productCode: string | null;
     createdAt: Date;
     shopId: string;
     price: number;
@@ -90,8 +92,8 @@ export default function ShopComp({ shopid }: { shopid: string }) {
 
   return (
     <div className="special flex h-screen w-full flex-col overflow-auto">
-      <header className="flex items-center justify-center bg-gradient-to-r from-gray-900 to-gray-800 p-4 text-white shadow-md">
-        <div className="flex items-center gap-4">
+      <header className="flex w-full items-center justify-between bg-gradient-to-r from-gray-900 to-gray-800 p-4 text-white shadow-md">
+        <div className="flex flex-grow items-center justify-center gap-4">
           <Image
             src={shopData?.shopImage ?? "/shop.png"}
             alt="Shop Logo"
@@ -101,6 +103,9 @@ export default function ShopComp({ shopid }: { shopid: string }) {
             className="rounded-full"
           />
           <h1 className="text-xl font-semibold">{shopData?.name}</h1>
+        </div>
+        <div className="flex items-end">
+          <h1 className="text-xl font-semibold">{shopData?.shopId}</h1>
         </div>
       </header>
 

@@ -26,7 +26,7 @@ export default function RootLayout({
   const [navbar, setNavbar] = React.useState<boolean>(false);
 
   useEffect(() => {
-    if (pathname.startsWith("/dashboard")) {
+    if (pathname.startsWith("/dashboard") || pathname.startsWith("/invoice")) {
       setNavbar(false);
     } else {
       setNavbar(true);
@@ -66,7 +66,10 @@ export default function RootLayout({
             />
             {navbar && <Navbar isDark={dark} setDark={setDark} />}
             {children}
-            <Toaster position="top-center" className="bg-[#1e201e] text-white" />
+            <Toaster
+              position="top-center"
+              className="bg-[#1e201e] text-white"
+            />
 
             {loading && isHomePage && (
               <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gray-900 text-white">

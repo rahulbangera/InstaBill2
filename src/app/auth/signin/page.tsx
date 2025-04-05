@@ -7,11 +7,13 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Dialog } from "~/components/ui/dialog";
 import Image from "next/image";
+import { api } from "~/trpc/react";
 
 const Signin = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const { mutate: sendemail } = api.user.sendmail.useMutation();
   const [modal, setModal] = useState<boolean>(false);
 
   const router = useRouter();
@@ -43,6 +45,7 @@ const Signin = () => {
       if (response.ok) {
         setModal(true);
         setError("");
+        // void sendemail({ email: email });
         setTimeout(() => {
           router.push("/");
         }, 2000);

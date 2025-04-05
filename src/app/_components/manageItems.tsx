@@ -1,9 +1,12 @@
+import { DeleteIcon, Trash2Icon } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { api } from "~/trpc/react";
 
 interface ProductsSchema {
   name: string;
   id: string;
+  productCode: string | null;
   createdAt: Date;
   shopId: string;
   price: number;
@@ -23,9 +26,10 @@ const ManageItems = ({
   const [filteredItems, setFilteredItems] = useState<ProductsSchema[]>([]);
 
   const [prodName, setProdName] = useState("");
-  const [prodPrice, setProdPrice] = useState(0);
-  const [prodShortcut, setProdShortcut] = useState(0);
+  const [prodPrice, setProdPrice] = useState<number | "">(0);
+  const [prodShortcut, setProdShortcut] = useState<number | "">(0);
   const [prodImage, setProdImage] = useState("");
+  const { mutate: deleteProduct } = api.products.deleteProduct.useMutation();
 
   const { mutate: createProduct } = api.products.createProduct.useMutation();
 
@@ -34,19 +38,37 @@ const ManageItems = ({
   }, [itemsData]);
 
   const handleProdAdd = async () => {
-    createProduct(
-      {
-        name: prodName,
-        price: prodPrice,
-        shortcut: prodShortcut,
-        shopId: shopId,
-        image: prodImage,
+    if (
+      prodPrice !== "" &&
+      prodPrice > 0 &&
+      prodShortcut !== "" &&
+      prodShortcut > 0
+    ) {
+      createProduct(
+        {
+          name: prodName,
+          price: prodPrice,
+          shortcut: prodShortcut,
+          shopId: shopId,
+          image: prodImage,
+        },
+        { onSuccess: fetchProdData },
+      );
+      setProdName("");
+      setProdPrice(0);
+      setProdShortcut(0);
+    } else {
+      toast.error("Please enter all the fields correctly");
+    }
+  };
+
+  const handleItemDeletion = async (item: ProductsSchema) => {
+    deleteProduct(item.id, {
+      onSuccess: () => {
+        toast.success("Item deleted successfully");
+        fetchProdData();
       },
-      { onSuccess: fetchProdData },
-    );
-    setProdName("");
-    setProdPrice(0);
-    setProdShortcut(0);
+    });
   };
 
   return (
@@ -86,7 +108,11 @@ const ManageItems = ({
                 <input
                   type="number"
                   id="itemPrice"
-                  onChange={(e) => setProdPrice(parseFloat(e.target.value))}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const parsedValue = parseFloat(value);
+                    setProdPrice(isNaN(parsedValue) ? "" : parsedValue);
+                  }}
                   value={prodPrice}
                   name="itemPrice"
                   className="mt-1 block w-full rounded-md border-gray-300 bg-gray-600 p-3 pl-8 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -104,7 +130,11 @@ const ManageItems = ({
               <input
                 type="text"
                 id="shortcutNo"
-                onChange={(e) => setProdShortcut(parseInt(e.target.value))}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const parsedValue = parseInt(value);
+                  setProdShortcut(isNaN(parsedValue) ? "" : parsedValue);
+                }}
                 value={prodShortcut}
                 name="shortcutNo"
                 className="mt-1 block w-full rounded-md border-gray-300 bg-gray-600 p-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -157,13 +187,22 @@ const ManageItems = ({
                 key={item.id}
                 className="rounded-lg bg-gray-700 p-4 shadow-md"
               >
-                <h2 className="text-lg font-semibold text-white">
-                  {item.name}
-                </h2>
+                <div className="flex justify-between">
+                  <h2 className="text-lg font-semibold text-white">
+                    {item.name}
+                  </h2>
+                  <span className="text-gray-300">{item.productCode}</span>
+                </div>
                 <p className="text-gray-300">Price: ₹{item.price}</p>
-                <p className="text-sm text-gray-400">
-                  shortcut No: {item.shortcut}
-                </p>
+                <div className="flex justify-between">
+                  <p className="text-sm text-gray-400">
+                    shortcut No: {item.shortcut}
+                  </p>
+                  <Trash2Icon
+                    onClick={() => handleItemDeletion(item)}
+                    className="scale-[0.85]"
+                  />
+                </div>
               </div>
             ))}
           </div>

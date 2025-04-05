@@ -2,10 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import { api } from "~/trpc/react";
-import type { Product, Shop } from "@prisma/client";
+import type { Bill, Product, Shop } from "@prisma/client";
 import { Trash2Icon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface Item {
   name: string;
@@ -38,12 +39,17 @@ const EmployeeDashboard = () => {
   const [itemsData, setItemsData] = useState<Item[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [activeIndex, setActiveIndex] = useState<number>(-1);
+  const [billDone, setBillDone] = useState<boolean>(false);
   const [shopData, setShopData] = useState<Shop | null>(null);
+  const [billId, setBillId] = useState<string | null>(null);
+  const [printModal, setPrintModal] = useState<boolean>(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
     PaymentMethod.CASH,
   );
   const { mutate: createBill } = api.billing.createBilling.useMutation();
+  const getInvoice = api.invoice.createInvoice.useMutation();
 
+  const router = useRouter();
   useEffect(() => {
     if (data) {
       setProducts(data[0] as Product[]);
@@ -268,10 +274,12 @@ const EmployeeDashboard = () => {
           }),
         },
         {
-          onSuccess: () => {
-            setItemsData([]);
+          onSuccess: (bill: Bill) => {
             toast.dismiss();
             toast.success("Bill created successfully");
+            setBillId(bill.id);
+            setBillDone(true);
+            setPrintModal(true);
           },
           onError: () => {
             toast.error("Network Error, don't worry bills are safe");
@@ -283,6 +291,24 @@ const EmployeeDashboard = () => {
       toast.error("Error fetching, Shop not found, still bill created locally");
     }
   };
+
+  const handlePrintBill = async () => {
+    await getInvoice.mutateAsync(shopData?.id + "-" + billId, {
+      onSuccess: (response) => {
+        window.location.href = response;
+      },
+      onError: (error) => {
+        console.error("PDF generation failed:", error);
+      },
+    });
+  };
+
+  const clearItems = () => {
+    setItemsData([]);
+    setPrintModal(false);
+    setBillDone(false);
+  };
+
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-gray-800 pb-4">
       <div className="flex max-h-screen w-full justify-center border-b-2 border-gray-500 bg-gray-900 p-4">
@@ -490,10 +516,11 @@ const EmployeeDashboard = () => {
               </label>
             </div>
           </div>
-          <div className="flex w-full justify-center">
+          <div className="flex w-full justify-center gap-4">
             <Button
               onClick={handleConfirmBill}
               className="mt-4"
+              disabled={billDone}
               variant="secondary"
             >
               Confirm Bill{" "}
@@ -501,6 +528,26 @@ const EmployeeDashboard = () => {
           </div>
         </div>
       </div>
+      {printModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="flex h-fit w-1/4 flex-col items-end rounded-lg bg-gray-700 p-5">
+            <div className="w-full text-left">
+              {" "}
+              <h2 className="mb-4 text-xl">
+                Do you want to print the invoice?
+              </h2>
+            </div>
+            <div className="flex gap-3">
+              <Button className="bg-blue-800" onClick={handlePrintBill}>
+                Yes
+              </Button>
+              <Button className="bg-red-700" onClick={clearItems}>
+                No
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

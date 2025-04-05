@@ -26,8 +26,17 @@ export async function middleware(request: NextRequest) {
     secret: env.AUTH_SECRET,
     cookieName: "next-auth.session-token",
   });
-  if (request.nextUrl.pathname === "/signin") {
+  if (
+    request.nextUrl.pathname === "/signin" ||
+    request.nextUrl.pathname === "/login"
+  ) {
     return NextResponse.redirect(new URL("/auth/signin", request.url));
+  }
+  if (
+    request.nextUrl.pathname === "/signup" ||
+    request.nextUrl.pathname === "/register"
+  ) {
+    return NextResponse.redirect(new URL("/auth/signup", request.url));
   }
   if (request.nextUrl.pathname === "/dashboard") {
     if (token) {
@@ -58,5 +67,13 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/signin", "/dashboard", "/dashboard/owner", "/dashboard/employee"],
+  matcher: [
+    "/signin",
+    "/login",
+    "/register",
+    "/signup",
+    "/dashboard",
+    "/dashboard/owner",
+    "/dashboard/employee",
+  ],
 };

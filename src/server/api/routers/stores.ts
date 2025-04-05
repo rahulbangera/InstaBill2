@@ -36,9 +36,42 @@ export const storesRouter = createTRPCRouter({
         throw new Error("Owner not found");
       }
 
+      const lastUsedId = await ctx.db.analysis.findUnique({
+        where: {
+          id: 1,
+        },
+      });
+
+      const nextShopId = lastUsedId ? lastUsedId.lastShopId + 1 : 1;
+      const formattedShopId = nextShopId.toString().padStart(4, "0");
+
+      await ctx.db.analysis.update({
+        where: {
+          id: 1,
+        },
+        data: {
+          lastShopId: nextShopId,
+        },
+      });
+
+      console.log(input.itemCodeFormat);
+
+      const existingProdCode = await ctx.db.shop.findFirst({
+        where: {
+          productCodeFormat: input.itemCodeFormat,
+        },
+      });
+
+      if (existingProdCode) {
+        throw new Error("Product code format already exists");
+      }
+
       const shop = await ctx.db.shop.create({
         data: {
           name: input.name,
+          shopId: `INST-${formattedShopId}`,
+          productCodeFormat: input.itemCodeFormat,
+          lastproductNo: 0,
           address: input.address,
           phone: input.phone,
           email: input.email,
@@ -49,7 +82,10 @@ export const storesRouter = createTRPCRouter({
 
       try {
         const transporter = nodemailer.createTransport({
-          service: "gmail",
+          service: env.SMTP_SERVICE,
+          host: env.SMTP_HOST,
+          port: env.SMTP_PORT,
+          secure: env.SMTP_SECURE,
           auth: {
             user: env.EMAIL_USER,
             pass: env.EMAIL_PASS,
@@ -106,6 +142,7 @@ export const storesRouter = createTRPCRouter({
         },
         select: {
           shopImage: true,
+          shopId: true,
           name: true,
           address: true,
           phone: true,
@@ -124,5 +161,20 @@ export const storesRouter = createTRPCRouter({
       }
 
       return shop;
+    }),
+  getCitiesByPinCode: protectedProcedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      const res = await fetch(`https://api.postalpincode.in/pincode/${input}`);
+      const data = await res.json();
+      if (data[0].Status === "Error") {
+        throw new Error("Invalid Pincode");
+      } else {
+        return data[0].PostOffice.map((item: any) => ({
+          name: item.Name,
+          district: item.District,
+          state: item.State,
+        }));
+      }
     }),
 });

@@ -1,6 +1,5 @@
 import React from "react";
 import ShopComp from "./shop";
-import { api } from "~/trpc/react";
 
 export default async function ShopSlug({
   params,

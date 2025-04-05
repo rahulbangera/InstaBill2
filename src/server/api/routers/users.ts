@@ -2,8 +2,35 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { todoInput } from "~/types";
 import bcrypt from "bcryptjs";
+import { env } from "~/env";
+import nodemailer from "nodemailer";
 
 export const usersRouter = createTRPCRouter({
+  sendmail: publicProcedure
+    .input(z.object({ email: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const transporter = nodemailer.createTransport({
+          service: env.SMTP_SERVICE,
+          host: env.SMTP_HOST,
+          port: env.SMTP_PORT,
+          secure: env.SMTP_SECURE,
+          auth: {
+            user: env.EMAIL_USER,
+            pass: env.EMAIL_PASS,
+          },
+        });
+
+        await transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: input.email,
+          subject: "Welcome to Our Shop",
+          text: `Hello,\n\nYour account has been logged in`,
+        });
+      } catch (e) {
+        console.error("Error sending mail", e);
+      }
+    }),
   createUser: publicProcedure
     .input(
       z.object({
@@ -32,6 +59,17 @@ export const usersRouter = createTRPCRouter({
         },
         select: {
           email: true,
+          id: true,
+        },
+      });
+
+      if (!user) {
+        throw new Error("User creation failed");
+      }
+
+      await ctx.db.owner.create({
+        data: {
+          userId: user.id,
         },
       });
 

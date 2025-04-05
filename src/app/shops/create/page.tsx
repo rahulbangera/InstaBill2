@@ -6,6 +6,7 @@ import Image from "next/image";
 import { api } from "~/trpc/react";
 import { Cross1Icon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface Employee {
   name: string;
@@ -20,12 +21,31 @@ interface Shop {
   email: string;
 }
 
+interface City {
+  name: string;
+  district: string;
+  state: string;
+}
+
 const Page = () => {
   const router = useRouter();
   const [storeImage, setStoreImage] = useState<string>("");
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [fetchCitiesDone, setFetchCitiesDone] = useState(false);
+  const [shopPinCode, setShopPinCode] = useState<string>("");
+  const { data, refetch: getCities } = api.shops.getCitiesByPinCode.useQuery(
+    shopPinCode,
+    { enabled: false },
+  );
+
   const [deletionModal, setDeletionModal] = useState(false);
+  const [productCode, setProductCode] = useState({
+    locationCode: "",
+    customCode: "",
+    yearCode: new Date().getFullYear().toString().slice(-2),
+  });
 
   const [employeeData, setEmployeeData] = useState<Employee>({
     name: "",
@@ -33,12 +53,58 @@ const Page = () => {
     phone: "",
   });
 
+  const [shopCity, setShopCity] = useState<string>("");
+
+  useEffect(() => {
+    if (shopCity.length > 0) {
+      setProductCode((prev) => ({
+        ...prev,
+        locationCode: shopCity.toUpperCase().slice(0, 3),
+      }));
+    } else {
+      if (fetchCitiesDone === true) {
+        setCities([]);
+        setFetchCitiesDone(false);
+      }
+      console.log("Shop City is empty");
+      setProductCode((prev) => ({
+        ...prev,
+        locationCode: "",
+      }));
+    }
+  }, [shopCity]);
+
   const [shopData, setShopData] = useState<Shop>({
     name: "",
     address: "",
     phone: "",
     email: "",
   });
+
+  useEffect(() => {
+    setProductCode((prev) => ({
+      ...prev,
+      customCode: shopData.name.toUpperCase().slice(0, 4),
+    }));
+  }, [shopData.name]);
+
+  const handlePinCodeConfirmation = () => {
+    if (shopPinCode.length === 6) {
+      getCities()
+        .then((res) => {
+          if (res) {
+            console.log(res);
+            setFetchCitiesDone(true);
+            setCities(res.data);
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    } else {
+      toast.error("Please enter a valid pin code");
+    }
+  };
 
   const { mutate: deleteImage } = api.ut.deleteImage.useMutation();
   const { mutate: createStore } = api.shops.createStore.useMutation();
@@ -71,6 +137,10 @@ const Page = () => {
   };
 
   const handleShopCreation = () => {
+    if (productCode.customCode.trim().length < 4) {
+      toast.error("Product code must be at least 4 characters long");
+      return;
+    }
     createStore(
       {
         name: shopData.name,
@@ -78,6 +148,7 @@ const Page = () => {
         phone: shopData.phone,
         email: shopData.email,
         employees: employees,
+        itemCodeFormat: `${productCode.locationCode}${productCode.yearCode}${productCode.customCode}`,
         image: storeImage,
       },
       {
@@ -92,6 +163,21 @@ const Page = () => {
     );
   };
 
+  useEffect(() => {
+    if (shopPinCode.length !== 6) {
+      setShopCity(""); // reset city selection
+    }
+  }, [shopPinCode]);
+
+  useEffect(() => {
+    if (!shopCity && cities.length > 0) {
+      const firstDistrict = cities[0]?.district;
+      if (firstDistrict) {
+        setShopCity(firstDistrict);
+      }
+    }
+  }, [cities]);
+
   return (
     <div className="flex h-screen items-center justify-center bg-opacity-80">
       <form className="mx-64 h-fit w-screen max-w-[1200px] rounded-lg border border-gray-300 bg-opacity-90 p-5">
@@ -104,6 +190,7 @@ const Page = () => {
             className="mt-1 w-full rounded border border-gray-300 bg-gray-600 p-2"
           />
         </div>
+
         <div className="mb-3">
           <label className="block">Store Address</label>
           <textarea
@@ -112,6 +199,84 @@ const Page = () => {
             }
             className="mt-1 w-full rounded border border-gray-300 bg-gray-600 p-2"
           />
+          <div className="h-18 mb-2 mt-2 flex w-full items-center justify-evenly">
+            {" "}
+            <div className="relative">
+              <label className="block">Store Pin Code:</label>
+              <input
+                type="text"
+                placeholder="Pin Code"
+                onChange={(e) => setShopPinCode(e.target.value)}
+                className="w-full rounded border border-gray-300 bg-gray-600 p-2"
+              />
+              <button
+                type="button"
+                onClick={handlePinCodeConfirmation}
+                className="absolute right-2 translate-y-[12%] transform rounded bg-blue-500 px-3 py-1 text-white"
+              >
+                Confirm
+              </button>
+            </div>
+            <div className="h-full">
+              <label className="block">Store City:</label>
+              <select
+                onChange={(e) => setShopCity(e.target.value)}
+                value={
+                  shopCity || (cities.length > 0 ? cities[0]?.district : "")
+                }
+                className="w-full rounded border border-gray-300 bg-gray-600 p-[0.6rem]"
+              >
+                <option value="" disabled>
+                  Select City
+                </option>
+                {shopPinCode.length === 6 &&
+                  Array.from(new Set(cities.map((city) => city.district))).map(
+                    (uniqueDistrict, index) => (
+                      <option key={index} value={uniqueDistrict}>
+                        {uniqueDistrict}
+                      </option>
+                    ),
+                  )}
+              </select>
+            </div>
+            <div className="">
+              <label className="block">Product Code Format:</label>
+              <div className="flex items-center gap-2">
+                {/* Location Code (Auto) */}
+                <input
+                  type="text"
+                  placeholder="CITY"
+                  value={productCode.locationCode}
+                  disabled
+                  className="w-20 rounded border border-gray-300 bg-gray-600 p-2 text-center"
+                />
+
+                <input
+                  type="text"
+                  value={productCode.yearCode}
+                  disabled
+                  className="w-20 rounded border border-gray-300 bg-gray-600 p-2 text-center"
+                />
+
+                <div className="relative flex items-center">
+                  <input
+                    type="text"
+                    value={productCode.customCode}
+                    placeholder="Store Code"
+                    onChange={(e) =>
+                      setProductCode({
+                        ...productCode,
+                        customCode: e.target.value,
+                      })
+                    }
+                    maxLength={6}
+                    className="w-40 rounded border border-gray-300 bg-gray-600 p-2 pr-10 text-left"
+                  />
+                  <span className="absolute right-2 text-gray-400">XXXX</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="mb-3">

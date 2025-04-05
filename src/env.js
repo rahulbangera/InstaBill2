@@ -8,6 +8,10 @@ export const env = createEnv({
    */
   server: {
     NEXTAUTH_URL: z.string().url(),
+    SMTP_SERVICE: z.string(),
+    SMTP_HOST: z.string(),
+    SMTP_PORT: z.number(),
+    SMTP_SECURE: z.boolean(),
     EMAIL_USER: z.string(),
     EMAIL_PASS: z.string(),
     AUTH_SECRET:
@@ -37,6 +41,12 @@ export const env = createEnv({
    */
   runtimeEnv: {
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    SMTP_SERVICE: process.env.SMTP_SERVICE,
+    SMTP_HOST: process.env.SMTP_HOST,
+    SMTP_PORT: Number(process.env.SMTP_PORT),
+    SMTP_SECURE: process.env.SMTP_SECURE
+      ? process.env.SMTP_SECURE === "true"
+      : false,
     EMAIL_USER: process.env.EMAIL_USER,
     EMAIL_PASS: process.env.EMAIL_PASS,
     AUTH_SECRET: process.env.AUTH_SECRET,

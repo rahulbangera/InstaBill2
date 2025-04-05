@@ -54,17 +54,70 @@ export const productsRouter = createTRPCRouter({
       if (!shop) {
         throw new Error("Shop not found");
       }
-      return ctx.db.product.create({
+
+      const productNumber = (shop.lastproductNo ?? 0) + 1;
+      const formattedProductNumber = productNumber.toString().padStart(4, "0");
+      const productCode = shop.productCodeFormat + formattedProductNumber;
+
+      const product = ctx.db.product.create({
         data: {
           name: input.name,
           price: input.price,
           image: input.image,
           shortcut: input.shortcut,
+          productCode: productCode,
           shop: {
             connect: {
               id: shop.id,
             },
           },
+        },
+      });
+
+      await ctx.db.shop.update({
+        where: {
+          id: shop.id,
+        },
+        data: {
+          lastproductNo: (shop.lastproductNo ?? 0) + 1,
+        },
+      });
+
+      return product;
+    }),
+  deleteProduct: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      const owner = await ctx.db.owner.findUnique({
+        where: {
+          userId: ctx.session.user.id,
+        },
+      });
+      if (!owner) {
+        throw new Error("Owner not found");
+      }
+      const product = await ctx.db.product.findUnique({
+        where: {
+          id: input,
+        },
+      });
+      if (!product) {
+        throw new Error("Product not found");
+      }
+      const shop = await ctx.db.shop.findUnique({
+        where: {
+          id: product.shopId,
+        },
+      });
+      if (!shop) {
+        throw new Error("Shop not found");
+      }
+      if (shop.ownerId !== owner.id) {
+        throw new Error("You do not have permission to delete this product");
+      }
+      return ctx.db.product.delete({
+        where: {
+          id: input,
         },
       });
     }),

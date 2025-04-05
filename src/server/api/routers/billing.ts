@@ -1,4 +1,4 @@
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { date, z } from "zod";
 
 export const billingRouter = createTRPCRouter({
@@ -195,5 +195,59 @@ export const billingRouter = createTRPCRouter({
           },
         },
       });
+    }),
+  getBillById: publicProcedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      console.log("-----------------------------------");
+      console.log(input);
+      console.log("-----------------------------------");
+      const bill = await ctx.db.bill.findUnique({
+        where: {
+          id: input,
+        },
+        select: {
+          id: true,
+          createdAt: true,
+          paymentMethod: true,
+          total: true,
+          customerName: true,
+          customerPhone: true,
+          discount: true,
+          employee: {
+            select: {
+              user: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+          items: {
+            select: {
+              id: true,
+              name: true,
+              price: true,
+              quantity: true,
+              product: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+          shop: {
+            select: {
+              name: true,
+              address: true,
+              email: true,
+              phone: true,
+              shopImage: true,
+            },
+          },
+        },
+      });
+
+      return bill;
     }),
 });

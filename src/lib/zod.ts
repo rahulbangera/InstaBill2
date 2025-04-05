@@ -13,6 +13,9 @@ export const shopSchema = object({
   name: string({ required_error: "Name is required" })
     .min(1, "Name is required")
     .max(32, "Name must be less than 32 characters"),
+  itemCodeFormat: string({
+    required_error: "Item code format is required",
+  }).min(1, "Item code format is required"),
   address: string({ required_error: "Address is required" })
     .min(1, "Address is required")
     .max(32, "Address must be less than 32 characters"),
