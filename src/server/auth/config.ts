@@ -75,7 +75,18 @@ export const authConfig: NextAuthConfig = {
           user.password,
         );
 
+        console.log(isValid);
+
+        // if (isValid === false) {
+        //   console.log("Invalid credentials");
+        //   throw new Error(JSON.stringify({ message: "Invalid credentials", status: 400 }));
+        // }
+        // else{
+        //   console.log("Valid credentials");
+        // }
+
         if (!isValid) {
+          console.log("Invalid credentials");
           return null;
         }
 

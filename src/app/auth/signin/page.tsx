@@ -34,6 +34,8 @@ const Signin = () => {
       callbackUrl: "http://localhost:3000",
     });
     if (response) {
+      console.log(response);
+
       if (response.error) {
         if (response.error.includes("Credentials")) {
           setError("Invalid Login");
@@ -42,13 +44,13 @@ const Signin = () => {
         }
         setModal(true);
       }
-      if (response.ok) {
+      else if (response.ok) {
         setModal(true);
         setError("");
         // void sendemail({ email: email });
-        setTimeout(() => {
-          router.push("/");
-        }, 2000);
+        // setTimeout(() => {
+        //   router.push("/");
+        // }, 2000);
       }
     }
   };

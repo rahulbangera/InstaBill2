@@ -315,6 +315,30 @@ const EmployeeDashboard = () => {
         <h1 className="text-center">
           {shopData ? shopData.name + " Billing" : ""}
         </h1>
+        <div className="absolute right-4">
+          <label className="flex items-center gap-2">
+            <span>Advanced Mode</span>
+            <button
+              onClick={(e) => {
+          const toggleButton = e.currentTarget;
+          const toggleCircle = toggleButton.querySelector("span");
+          const isActive = toggleButton.classList.toggle("bg-green-500");
+          if (isActive) {
+            toggleButton.classList.remove("bg-gray-400");
+            toggleCircle?.classList.add("translate-x-6");
+            toast.success("Advanced Mode Enabled");
+          } else {
+            toggleButton.classList.add("bg-gray-400");
+            toggleCircle?.classList.remove("translate-x-6");
+            toast.info("Advanced Mode Disabled");
+          }
+              }}
+              className="relative h-6 w-12 rounded-full bg-gray-400 transition-colors"
+            >
+              <span className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition-transform transform"></span>
+            </button>
+          </label>
+        </div>
       </div>
       <div className="flex w-full gap-3 p-12">
         <div className="w-4/5">
