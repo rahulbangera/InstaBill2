@@ -232,12 +232,14 @@ export const billingRouter = createTRPCRouter({
               product: {
                 select: {
                   id: true,
+                  productCode: true,
                 },
               },
             },
           },
           shop: {
             select: {
+              shopId: true,
               name: true,
               address: true,
               email: true,

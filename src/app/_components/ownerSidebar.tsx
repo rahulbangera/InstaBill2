@@ -8,6 +8,7 @@ import { Pencil1Icon } from "@radix-ui/react-icons";
 import { UploadButton } from "~/utils/uploadthing";
 import { usePathname } from "next/navigation";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
+import { toast } from "sonner";
 
 const OwnerSidebar = () => {
   const pathname = usePathname();
@@ -97,8 +98,12 @@ const OwnerSidebar = () => {
         {!collapsed ? "Dashboard" : "📊"}
       </Link>
       <Link
-        className="flex w-full justify-center border-b-2 border-gray-500 p-4 text-gray-300 hover:bg-gray-700"
-        href={"/"}
+        className="flex w-full justify-center border-b-2 border-gray-500 p-4 text-gray-600 bg-gray-800 cursor-not-allowed"
+        href={"#"}
+        onClick={(e) => {
+          e.preventDefault()
+          toast.error("This feature is not available yet.")
+        }}
       >
         {!collapsed ? "Manage Access" : "🔑"}
       </Link>

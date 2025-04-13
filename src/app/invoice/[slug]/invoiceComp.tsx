@@ -38,7 +38,7 @@ export default function InvoiceComp({
         </div>
         <div style={styles.invoiceInfo}>
           <p>Invoice No: {invoiceId}</p>
-          <p>Shop ID: {shopid}</p>
+          <p>Shop ID: {invoiceData?.shop.shopId}</p>
           <p>Date: {invoiceData?.createdAt.toLocaleString()}</p>
         </div>
       </div>
@@ -56,6 +56,7 @@ export default function InvoiceComp({
       <table style={styles.table}>
         <thead>
           <tr>
+            <th style={styles.th}>Item ID</th>
             <th style={styles.th}>Item</th>
             <th style={styles.th}>Quantity</th>
             <th style={styles.th}>Price</th>
@@ -65,7 +66,10 @@ export default function InvoiceComp({
         <tbody id="itemsContainer">
           {invoiceData?.items.map((item) => (
             <tr key={item.id}>
-              <td className="itemClass" style={styles.td}>{item.name}</td>
+              <td style={styles.td}>{item.product?.productCode ?? ""}</td>
+              <td className="itemClass" style={styles.td}>
+                {item.name}
+              </td>
               <td style={styles.td}>{item.quantity}</td>
               <td style={styles.td}> ₹ {item.price}</td>
               <td style={styles.td}> ₹ {item.price * item.quantity}</td>
@@ -86,7 +90,9 @@ export default function InvoiceComp({
             0,
           )}
         </p>
-        <p>Discount: {invoiceData?.discount} %</p>
+        {(invoiceData?.discount ?? 0) > 0 && (
+          <p>Discount: {invoiceData?.discount} %</p>
+        )}
         <h3>Total: ₹ {invoiceData?.total}</h3>
       </div>
     </div>
@@ -94,7 +100,7 @@ export default function InvoiceComp({
 }
 
 // Inline styles for Puppeteer rendering
-const styles: { [key: string]: React.CSSProperties } = {
+const styles: Record<string, React.CSSProperties> = {
   container: {
     width: "100%",
     minHeight: "100vh",

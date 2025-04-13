@@ -82,7 +82,7 @@ const ManageEmployees = ({ shopId }: { shopId: string }) => {
         onSuccess: () => {
           toast.success("Employee added successfully");
           setEmployeeModalOpen(false);
-          fetchEmployees();
+          void fetchEmployees();
         },
       },
     );

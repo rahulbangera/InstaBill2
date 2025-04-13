@@ -6,6 +6,19 @@ import { hash } from "bcryptjs";
 import { randomBytes } from "crypto";
 import { env } from "~/env";
 
+interface PostOffice {
+  Name: string;
+  District: string;
+  State: string;
+}
+
+interface PinCodeApiResponse {
+  Status: string;
+  PostOffice: PostOffice[];
+}
+
+type ApiResponse = PinCodeApiResponse[];
+
 export const storesRouter = createTRPCRouter({
   getStores: protectedProcedure.query(async ({ ctx }) => {
     const owner = await ctx.db.owner.findUnique({
@@ -165,12 +178,15 @@ export const storesRouter = createTRPCRouter({
   getCitiesByPinCode: protectedProcedure
     .input(z.string())
     .query(async ({ ctx, input }) => {
-      const res = await fetch(`https://api.postalpincode.in/pincode/${input}`);
-      const data = await res.json();
-      if (data[0].Status === "Error") {
+      const res: Response = await fetch(
+        `https://api.postalpincode.in/pincode/${input}`,
+      );
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const data: ApiResponse = await res.json();
+      if (data[0]?.Status === "Error") {
         throw new Error("Invalid Pincode");
       } else {
-        return data[0].PostOffice.map((item: any) => ({
+        return data[0]?.PostOffice.map((item) => ({
           name: item.Name,
           district: item.District,
           state: item.State,

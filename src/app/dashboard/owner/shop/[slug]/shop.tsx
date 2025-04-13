@@ -63,8 +63,11 @@ export default function ShopComp({ shopid }: { shopid: string }) {
   useEffect(() => {
     const updateUnderline = () => {
       if (tabRefs.current) {
-        const { offsetLeft, offsetWidth } = tabRefs.current[activeTab]!;
-        setUnderlineStyle({ left: offsetLeft, width: offsetWidth });
+        const activeTabRef = tabRefs.current[activeTab];
+        if (activeTabRef) {
+          const { offsetLeft, offsetWidth } = activeTabRef;
+          setUnderlineStyle({ left: offsetLeft, width: offsetWidth });
+        }
       }
     };
 

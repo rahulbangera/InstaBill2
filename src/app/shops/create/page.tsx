@@ -35,7 +35,7 @@ const Page = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [fetchCitiesDone, setFetchCitiesDone] = useState(false);
   const [shopPinCode, setShopPinCode] = useState<string>("");
-  const { data, refetch: getCities } = api.shops.getCitiesByPinCode.useQuery(
+  const { refetch: getCities } = api.shops.getCitiesByPinCode.useQuery(
     shopPinCode,
     { enabled: false },
   );
@@ -95,7 +95,7 @@ const Page = () => {
           if (res) {
             console.log(res);
             setFetchCitiesDone(true);
-            setCities(res.data);
+            setCities(res.data ?? []);
           }
         })
         .catch((err) => {
