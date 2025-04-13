@@ -37,14 +37,18 @@ const Signin = () => {
       console.log(response);
 
       if (response.error) {
-        if (response.error.includes("Credentials")) {
+        console.log(response.error);
+        if (response.error.includes("Configuration")) {
+          setError("User not verified, redirecting...");
+          setModal(true);
+          router.push("/auth/verifyotp?email=" + email);
+        } else if (response.error.includes("Credentials")) {
           setError("Invalid Login");
         } else {
           setError(response.error);
         }
         setModal(true);
-      }
-      else if (response.ok) {
+      } else if (response.ok) {
         setModal(true);
         setError("");
         // void sendemail({ email: email });

@@ -58,11 +58,15 @@ export const storesRouter = createTRPCRouter({
       const nextShopId = lastUsedId ? lastUsedId.lastShopId + 1 : 1;
       const formattedShopId = nextShopId.toString().padStart(4, "0");
 
-      await ctx.db.analysis.update({
+      await ctx.db.analysis.upsert({
         where: {
           id: 1,
         },
-        data: {
+        update: {
+          lastShopId: nextShopId,
+        },
+        create: {
+          id: 1,
           lastShopId: nextShopId,
         },
       });

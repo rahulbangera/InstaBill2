@@ -72,6 +72,9 @@ model User {
     image         String?   @db.Text
     accounts      Account[]
     sessions      Session[]
+    otp           String?
+    verified      Boolean   @default(false)
+    temporaryPass Boolean   @default(false)
     owner         Owner?
     employee      Employee?
     createdAt     DateTime  @default(now())

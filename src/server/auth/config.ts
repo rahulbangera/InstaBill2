@@ -90,6 +90,11 @@ export const authConfig: NextAuthConfig = {
           return null;
         }
 
+        if (!user.verified) {
+          console.log("User not verified");
+          throw new Error(JSON.stringify({ message: "User not verified", status: 403 }));
+        }
+
         return user;
       },
     }),

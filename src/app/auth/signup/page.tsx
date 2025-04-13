@@ -5,11 +5,14 @@ import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import Link from "next/link";
 import Image from "next/image";
+import { toast } from "sonner";
 
 const SignUp = () => {
   const router = useRouter();
   const [name, setName] = useState<string>("");
+  const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
@@ -18,6 +21,61 @@ const SignUp = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      toast.error(error);
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      toast.error(error);
+
+      return;
+    }
+    if (!email.includes("@")) {
+      setError("Invalid email address");
+      toast.error(error);
+
+      return;
+    }
+    if (name.length < 3) {
+      setError("Name must be at least 3 characters");
+      toast.error(error);
+
+      return;
+    }
+    if (name.length > 20) {
+      setError("Name must be less than 20 characters");
+      toast.error(error);
+
+      return;
+    }
+    if (email.length > 50) {
+      setError("Email must be less than 50 characters");
+      toast.error(error);
+
+      return;
+    }
+    if (password.length > 20) {
+      setError("Password must be less than 20 characters");
+      toast.error(error);
+
+      return;
+    }
+    if (confirmPassword.length > 20) {
+      setError("Confirm Password must be less than 20 characters");
+      toast.error(error);
+
+      return;
+    }
+
+    if (confirmPassword.length < 6) {
+      setError("Confirm Password must be at least 6 characters");
+      toast.error(error);
+
+      return;
+    }
+
     signUp(
       { email, password, name },
       {
@@ -29,7 +87,7 @@ const SignUp = () => {
           setSuccess(success.success);
           setError("");
           setTimeout(() => {
-            router.push("/signin");
+            router.push("/auth/verifyotp?email=" + email);
           }, 1000);
         },
       },
@@ -57,7 +115,7 @@ const SignUp = () => {
               placeholder="Name"
               required
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full rounded border border-gray-500 bg-gray-700 px-3 py-2 text-black outline-none focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+              className="mt-1 w-full rounded border border-gray-500 bg-gray-700 px-3 py-2 text-white outline-none focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
             />
           </div>
           <div>
@@ -74,7 +132,7 @@ const SignUp = () => {
               name="email"
               required
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded border border-gray-500 bg-gray-700 px-3 py-2 text-black outline-none focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+              className="mt-1 w-full rounded border border-gray-500 bg-gray-700 px-3 py-2 text-white outline-none focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
             />
           </div>
           <div>
@@ -84,15 +142,52 @@ const SignUp = () => {
             >
               Password:
             </label>
-            <input
-              type="password"
-              id="password"
-              placeholder="Password"
-              name="password"
-              required
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded border border-gray-500 bg-gray-700 px-3 py-2 text-black outline-none focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                placeholder="Password"
+                name="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-1 w-full rounded border border-gray-500 bg-gray-700 px-3 py-2 text-white outline-none focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-200 focus:outline-none"
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </button>
+            </div>
+          </div>
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Confirm Password:
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="confirm-password"
+                placeholder="Confirm Password"
+                name="confirm-password"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="mt-1 w-full rounded border border-gray-500 bg-gray-700 px-3 py-2 text-white outline-none focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-200 focus:outline-none"
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </button>
+            </div>
           </div>
           <Button
             type="submit"

@@ -63,6 +63,16 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/signin", request.url));
     }
   }
+
+  if (request.nextUrl.pathname === "/auth/verifyotp") {
+    const referer = request.headers.get("referer");
+    if (
+      !referer ||
+      (!referer.includes("/signup") && !referer.includes("/signin"))
+    ) {
+      return NextResponse.redirect(new URL("/auth/signin", request.url));
+    }
+  }
   return NextResponse.next();
 }
 
@@ -75,5 +85,6 @@ export const config = {
     "/dashboard",
     "/dashboard/owner",
     "/dashboard/employee",
+    "/auth/verifyotp",
   ],
 };
