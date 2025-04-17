@@ -54,7 +54,9 @@ const OwnerDashboard = () => {
   return (
     <>
       <div className="flex h-1/4 items-center border-b-2 border-gray-600 pl-12">
-        <h1 className="text-5xl">Welcome {session ? session?.user.name : null}!</h1>
+        <h1 className="text-5xl">
+          Welcome {session ? session?.user.name : null}!
+        </h1>
       </div>
       <div className="p-4">
         {storesData?.length === 0 ? (

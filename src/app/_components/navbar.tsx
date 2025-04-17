@@ -29,9 +29,15 @@ const Navbar: React.FC<NavbarProps> = ({ isDark, setDark }) => {
       <div className="flex w-1/3 items-center justify-end gap-2 px-8">
         <MoonIcon className="scale-125 text-black" />
         <Switch
-          style={{ backgroundColor: "black", opacity: "0.2", cursor: "default" }}
+          style={{
+            backgroundColor: "black",
+            opacity: "0.2",
+            cursor: "default",
+          }}
           className="bg-gray-900 text-orange-950"
-          onClick={() => toast.info("Light Mode Coming Soon", {duration: 1000})}
+          onClick={() =>
+            toast.info("Light Mode Coming Soon", { duration: 1000 })
+          }
           checked={false}
           // onCheckedChange={() => setDark((prev) => !prev)}
         />

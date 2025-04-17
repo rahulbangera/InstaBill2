@@ -1,3 +1,4 @@
+import { Pencil1Icon, Pencil2Icon } from "@radix-ui/react-icons";
 import { DeleteIcon, Trash2Icon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -24,14 +25,20 @@ const ManageItems = ({
   shopId: string;
 }) => {
   const [filteredItems, setFilteredItems] = useState<ProductsSchema[]>([]);
-
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [prodName, setProdName] = useState("");
   const [prodPrice, setProdPrice] = useState<number | "">(0);
   const [prodShortcut, setProdShortcut] = useState<number | "">(0);
   const [prodImage, setProdImage] = useState("");
   const { mutate: deleteProduct } = api.products.deleteProduct.useMutation();
-
+  const [productDeleteId, setProductDeleteId] = useState<string>("");
+  const [prodCode, setProdCode] = useState<string>("");
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [prodEditName, setProdEditName] = useState("");
+  const [prodEditPrice, setProdEditPrice] = useState<number | "">(0);
+  const [prodEditShortcut, setProdEditShortcut] = useState<number | "">(0);
   const { mutate: createProduct } = api.products.createProduct.useMutation();
+  const { mutate: updateProduct } = api.products.updateProduct.useMutation();
 
   useEffect(() => {
     setFilteredItems(itemsData);
@@ -63,14 +70,53 @@ const ManageItems = ({
   };
 
   const handleItemDeletion = async (item: ProductsSchema) => {
-    deleteProduct(item.id, {
+    setProductDeleteId(item.id);
+    setShowDeleteModal(true);
+  };
+
+  const removeItem = () => {
+    deleteProduct(productDeleteId, {
       onSuccess: () => {
         toast.success("Item deleted successfully");
         fetchProdData();
       },
     });
+    setShowDeleteModal(false);
   };
 
+  const handleItemEdit = (item: ProductsSchema) => {
+    if(!item) return;
+    if(!item.id) return;
+    setProdCode(item.id);
+    setShowEditModal(true);
+    setProdEditName(item.name);
+    setProdEditPrice(item.price);
+    setProdEditShortcut(item.shortcut);
+  };
+const handleConfirmEdit = () => {
+  if (
+    prodEditPrice !== "" &&
+    prodEditPrice > 0 &&
+    prodEditShortcut !== "" &&
+    prodEditShortcut > 0
+  ) {
+    updateProduct(
+      {
+        id: prodCode,
+        name: prodEditName,
+        price: prodEditPrice,
+        shortcut: prodEditShortcut,
+      },
+      { onSuccess: fetchProdData },
+    );
+    setProdEditName("");
+    setProdEditPrice(0);
+    setProdEditShortcut(0);
+  } else {
+    toast.error("Please enter all the fields correctly");
+  }
+  setShowEditModal(false);
+}
   return (
     <div className="mx-auto flex h-screen max-w-[2200px] justify-between p-4">
       <div className="mb-[200px] mr-2 flex max-w-[800px] flex-1 flex-col justify-center px-14">
@@ -198,14 +244,136 @@ const ManageItems = ({
                   <p className="text-sm text-gray-400">
                     shortcut No: {item.shortcut}
                   </p>
-                  <Trash2Icon
-                    onClick={() => handleItemDeletion(item)}
-                    className="scale-[0.85]"
-                  />
+                  <div className="flex items-center gap-4">
+                    <div className="cursor-pointer flex items-center" >
+                      {" "}
+                      <Pencil1Icon 
+                      onClick={()=>handleItemEdit(item)}
+                      className="scale-[1.35]"
+                      />
+                    </div>{" "}
+                    <div>
+                      <Trash2Icon
+                        onClick={() => handleItemDeletion(item)}
+                        className="scale-[0.85]"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
+
+          {showDeleteModal && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+              <div className="w-1/4 rounded-lg bg-gray-700 p-5">
+                <h2 className="mb-4 text-xl">Remove Item</h2>
+                <p>Are you sure you want to remove this item?</p>
+                <div className="mt-4 flex justify-end gap-2">
+                  <button
+                    onClick={() => setShowDeleteModal(false)}
+                    className="rounded bg-gray-400 px-3 py-1 text-white"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => removeItem()}
+                    className="rounded bg-red-500 px-3 py-1 text-white"
+                  >
+                    Confirm
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+{showEditModal && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60">
+              <div className="w-1/3 rounded-lg bg-gray-800 p-5">
+                
+                <h2 className="text-2xl mb-4 text-center">Edit Item</h2>
+                <div className="mb-4">
+                  <label
+                    htmlFor="itemName"
+                    className="block pl-1 text-md font-medium text-gray-200"
+                  >
+                    Item Name
+                  </label>
+                  <input
+                    type="text"
+                    id="itemName"
+                    onChange={(e) => setProdEditName(e.target.value)}
+                    value={prodEditName}
+                    name="itemName"
+                    className="mt-1 block w-full rounded-md border-gray-300 bg-gray-600 p-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm md:text-md"
+                    placeholder="Enter item name"
+                  />              
+                </div>
+                <div className="relative">
+                  <label
+                    htmlFor="itemPrice"
+                    className="block pl-1 text-sm font-medium text-gray-200"
+                  >
+                    Item Price
+                  </label>
+                  <div className="relative mb-4">
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                      ₹
+                    </span>
+                    <input
+                      type="number"
+                      id="itemPrice"
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        const parsedValue = parseFloat(value);
+                        setProdEditPrice(isNaN(parsedValue) ? "" : parsedValue);
+                      }}
+                      value={prodEditPrice}
+                      name="itemPrice"
+                      className="mt-1 block w-full rounded-md border-gray-300 bg-gray-600 p-3 pl-8 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm md:text-md"
+                      placeholder="Enter item price"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label
+                    htmlFor="shortcutNo"
+                    className="block pl-1 text-sm font-medium text-gray-200"
+                  >
+                    shortcut No
+                  </label>
+                  <input
+                    type="text"
+                    id="shortcutNo"
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const parsedValue = parseInt(value);
+                      setProdEditShortcut(isNaN(parsedValue) ? "" : parsedValue);
+                    }}
+                    value={prodEditShortcut}
+                    name="shortcutNo"
+                    className="mt-1 block w-full rounded-md border-gray-300 bg-gray-600 p-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm md:text-md"
+                    placeholder="Enter shortcut No"
+                  />
+                </div>  
+
+                <div className="mt-4 flex justify-end gap-2">
+                  <button
+                    onClick={() => setShowEditModal(false)}
+                    className="rounded bg-gray-400 px-3 py-1 text-white"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleConfirmEdit()}
+                    className="rounded bg-green-600 px-3 py-1 text-white"
+                  >
+                    Confirm
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

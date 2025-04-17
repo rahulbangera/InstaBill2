@@ -1,6 +1,6 @@
 "use client";
 
-import React, { SetStateAction, useEffect, useState } from "react";
+import React, { SetStateAction, useEffect, useRef, useState } from "react";
 import { api } from "~/trpc/react";
 import type { Bill, Product, Shop } from "@prisma/client";
 import { Trash2Icon } from "lucide-react";
@@ -52,6 +52,9 @@ const BillingDashboard = ({
   const [activeIndex, setActiveIndex] = useState<number>(-1);
   const [billDone, setBillDone] = useState<boolean>(false);
   const [shopData, setShopData] = useState<Shop | null>(null);
+
+  const quantityRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const [noInvoice, setNoInvoice] = useState<boolean>(false);
   const [billId, setBillId] = useState<string | null>(null);
   const [printModal, setPrintModal] = useState<boolean>(false);
   // const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
@@ -164,7 +167,10 @@ const BillingDashboard = ({
       if (selectedProduct) {
         handleAddToBill(selectedProduct.name, selectedProduct.price, 1);
         setActiveIndex(-1);
-        setBillState({ inputItem: "" }); // Clear input after selection
+        setBillState({ inputItem: "" });
+        setTimeout(() => {
+          quantityRefs.current[selectedProduct.name]?.focus();
+        }, 0);
       }
     }
   };
@@ -303,7 +309,13 @@ const BillingDashboard = ({
             toast.success("Bill created successfully");
             setBillId(bill.id);
             setBillDone(true);
+            if(!noInvoice) {
             setPrintModal(true);
+            }
+            else{
+              toast.success("Bill created successfully");
+              clearItems();
+            }
           },
           onError: () => {
             toast.error("Network Error, don't worry bills are safe");
@@ -334,13 +346,35 @@ const BillingDashboard = ({
   };
 
   return (
-    <div className="flex h-screen w-full flex-col overflow-auto bg-gray-800 pb-4 scrollbar-hide">
+    <div className="scrollbar-hide flex h-screen w-full flex-col overflow-auto bg-gray-800 pb-4">
       <div className="flex max-h-screen w-full justify-between border-b-2 border-gray-500 bg-gray-900 p-4">
         <div>{""}</div>
         <h1 className="text-center">
           {shopData ? shopData.name + " Billing" : ""}
         </h1>
-        <div className="float-right">
+        <div className="float-right flex items-center gap-6">
+        <label className="flex items-center gap-2">
+            <span>No Invoice Mode</span>
+            <button
+              onClick={() => {
+                setNoInvoice((prev) => !prev);
+                if (!noInvoice) {
+                  toast.success("No Invoice Mode Enabled");
+                } else {
+                  toast.info("No Invoice Mode Disabled");
+                }
+              }}
+              className={`relative h-6 w-12 rounded-full transition-colors ${
+                noInvoice ? "bg-green-500" : "bg-gray-400"
+              }`}
+            >
+              <span
+                className={`absolute left-1 top-1 h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  noInvoice ? "translate-x-6" : ""
+                }`}
+              ></span>
+            </button>
+          </label>
           <label className="flex items-center gap-2">
             <span>Advanced Mode</span>
             <button
@@ -456,11 +490,22 @@ const BillingDashboard = ({
                         <input
                           type="text"
                           name="quantity"
+                          ref={(el) => {
+                            (quantityRefs.current[item.name] = el);
+                          }}
+                          onKeyDown={
+                            (e)=>{
+                              if (e.key === "Enter"){
+                                e.preventDefault();
+                                inputRef.current?.focus();
+                              }
+                            }
+                          }
                           value={item.quantity || 0}
                           onChange={(e) => handleQuantityChange(e, index)}
                           className={`block h-full w-full px-4 py-4 text-center outline-none ${
                             item.quantity > 0
-                              ? "bg-transparent hover:bg-gray-800 focus:bg-gray-800"
+                              ? "bg-transparent hover:bg-gray-800 focus:bg-gray-600"
                               : "bg-red-400/60 hover:bg-gray-800 focus:bg-gray-800"
                           }`}
                         />
@@ -470,6 +515,14 @@ const BillingDashboard = ({
                           type="text"
                           value={`${item.price}`}
                           name="price"
+                          onKeyDown={
+                            (e)=>{
+                              if (e.key === "Enter"){
+                                e.preventDefault();
+                                inputRef.current?.focus();
+                              }
+                            }
+                          }
                           onChange={(e) => handlePriceChange(e, index)}
                           className={`block h-full w-full px-4 py-4 text-center outline-none ${
                             item.price !== 0

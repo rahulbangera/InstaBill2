@@ -104,45 +104,50 @@ const ViewAnalytics = ({ shopId }: { shopId: string }) => {
   return (
     <div className="space-y-8">
       <div className="mt-6 flex w-full justify-center">
-  <Card className="w-3/4 max-w-[1200px] bg-gray-800/70 p-4 border border-gray-700">
-    <CardContent>
-      <h2 className="mb-2 text-xl font-semibold text-gray-200">
-        Sales Overview - {selectedMonth}
-      </h2>
-      <select
-        value={selectedMonth}
-        onChange={(e) => setSelectedMonth(e.target.value)}
-        className="mb-2 rounded border border-gray-600 bg-gray-800 p-2 text-gray-200"
-      >
-        {Array.from({ length: 12 }).map((_, i) => {
-          const month = format(new Date().setMonth(i), "yyyy-MM");
-          return (
-            <option key={month} value={month}>
-              {month}
-            </option>
-          );
-        })}
-      </select>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart
-          data={salesData}
-          onClick={(data) => {
-            if (data?.activeLabel) {
-              const selectedDay = data.activeLabel;
-              const newDate = `${selectedMonth}-${selectedDay}`;
-              setSelectedDate(newDate);
-            }
-          }}
-        >
-          <XAxis dataKey="date" stroke="gray" />
-          <YAxis stroke="gray" />
-          <Tooltip contentStyle={{ backgroundColor: "#1E293B", color: "#FACC15" }} />
-          <Bar dataKey="sales" fill="#60A5FA" />
-        </BarChart>
-      </ResponsiveContainer>
-    </CardContent>
-  </Card>
-</div>
+        <Card className="w-3/4 max-w-[1200px] border border-gray-700 bg-gray-800/70 p-4">
+          <CardContent>
+            <h2 className="mb-2 text-xl font-semibold text-gray-200">
+              Sales Overview - {selectedMonth}
+            </h2>
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+              className="mb-2 rounded border border-gray-600 bg-gray-800 p-2 text-gray-200"
+            >
+              {Array.from({ length: 12 }).map((_, i) => {
+                const month = format(new Date().setMonth(i), "yyyy-MM");
+                return (
+                  <option key={month} value={month}>
+                    {month}
+                  </option>
+                );
+              })}
+            </select>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart
+                data={salesData}
+                onClick={(data) => {
+                  if (data?.activeLabel) {
+                    const selectedDay = data.activeLabel;
+                    const newDate = `${selectedMonth}-${selectedDay}`;
+                    setSelectedDate(newDate);
+                  }
+                }}
+              >
+                <XAxis dataKey="date" stroke="gray" />
+                <YAxis stroke="gray" />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#1E293B",
+                    color: "#FACC15",
+                  }}
+                />
+                <Bar dataKey="sales" fill="#60A5FA" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
 
       <div className="flex w-full justify-center">
         <div className="flex w-full max-w-[1800px] justify-center border-none bg-gray-700/20 p-8">

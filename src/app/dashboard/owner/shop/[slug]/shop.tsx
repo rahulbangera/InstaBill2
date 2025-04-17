@@ -112,7 +112,7 @@ export default function ShopComp({ shopid }: { shopid: string }) {
         </div>
       </header>
 
-      <nav className="sticky top-0 z-50 flex justify-center bg-black/40 p-2 text-white">
+      <nav className="sticky top-0 flex justify-center bg-black/40 p-2 text-white">
         {tabs.map((tab) => (
           <button
             key={tab.key}

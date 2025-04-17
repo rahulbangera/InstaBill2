@@ -74,7 +74,7 @@ export default function MultiTableBillingSidebar({
   };
 
   const finalizeBill = (tableName: string) => {
-    if (tableName === "Table 1") return; 
+    if (tableName === "Table 1") return;
     setAllBills((prev) => {
       const updated = { ...prev };
       delete updated[tableName];

@@ -7,5 +7,5 @@ export default async function ShopSlug({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  return <ShopComp shopid={slug}/>;
+  return <ShopComp shopid={slug} />;
 }

@@ -110,9 +110,17 @@ export const employeesRouter = createTRPCRouter({
       if (!employee) {
         throw new Error("Employee not found");
       }
-      await ctx.db.employee.delete({
+      const emp = await ctx.db.employee.delete({
         where: {
           id: input,
+        },
+      });
+      if (!emp) {
+        throw new Error("Error deleting employee");
+      }
+      await ctx.db.user.delete({
+        where: {
+          id: emp.userId,
         },
       });
       return true;

@@ -9,8 +9,8 @@ export default async function InvoicePage({
   const { slug } = await params;
 
   const slugParts = slug.split("-");
- 
+
   return (
     <InvoiceComp shopid={slugParts[0] ?? ""} invoiceId={slugParts[1] ?? ""} />
-  )
+  );
 }

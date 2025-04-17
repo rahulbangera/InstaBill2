@@ -85,6 +85,54 @@ export const productsRouter = createTRPCRouter({
 
       return product;
     }),
+    updateProduct: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        price: z.number(),
+        shortcut: z.number(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const owner = await ctx.db.owner.findUnique({
+        where: {
+          userId: ctx.session.user.id,
+        },
+      });
+      if (!owner) {
+        throw new Error("Owner not found");
+      }
+      const product = await ctx.db.product.findUnique({
+        where: {
+          id: input.id,
+        },
+      });
+      if (!product) {
+        throw new Error("Product not found");
+      }
+      const shop = await ctx.db.shop.findUnique({
+        where: {
+          id: product.shopId,
+        },
+      });
+      if (!shop) {
+        throw new Error("Shop not found");
+      }
+      if (shop.ownerId !== owner.id) {
+        throw new Error("You do not have permission to update this product");
+      }
+      return ctx.db.product.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          name: input.name,
+          price: input.price,
+          shortcut: input.shortcut,
+        },
+      });
+    }),
   deleteProduct: protectedProcedure
     .input(z.string())
     .mutation(async ({ ctx, input }) => {
