@@ -1,39 +1,39 @@
-"use client";
+"use client"
 
-import React, { SetStateAction, useEffect, useRef, useState } from "react";
-import { api } from "~/trpc/react";
-import type { Bill, Product, Shop } from "@prisma/client";
-import { Trash2Icon } from "lucide-react";
-import { Button } from "~/components/ui/button";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { PaymentMethod } from "@prisma/client";
+import React, { type SetStateAction, useEffect, useRef, useState } from "react"
+import { api } from "~/trpc/react"
+import type { Bill, Product, Shop } from "@prisma/client"
+import { Trash2Icon } from "lucide-react"
+import { Button } from "~/components/ui/button"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
+import { PaymentMethod } from "@prisma/client"
 
 interface Item {
-  name: string;
-  quantity: number;
-  price: number;
+  name: string
+  quantity: number
+  price: number
 }
 
 interface BillType {
-  shopId: string | undefined;
-  paymentMethod: PaymentMethod;
-  total: number;
-  discount: number;
+  shopId: string | undefined
+  paymentMethod: PaymentMethod
+  total: number
+  discount: number
   items: {
-    name: string;
-    price: number;
-    quantity: number;
-    productId: string | undefined;
-  }[];
+    name: string
+    price: number
+    quantity: number
+    productId: string | undefined
+  }[]
 }
 
 type BillingState = {
-  inputItem: string;
-  discount: number;
-  itemsData: Item[];
-  paymentMethod: PaymentMethod;
-};
+  inputItem: string
+  discount: number
+  itemsData: Item[]
+  paymentMethod: PaymentMethod
+}
 
 const BillingDashboard = ({
   setCollapsed,
@@ -41,167 +41,159 @@ const BillingDashboard = ({
   billState,
   setBillState,
 }: {
-  setCollapsed: React.Dispatch<SetStateAction<boolean>>;
-  collapsed: boolean;
-  billState: BillingState;
-  setBillState: (newState: Partial<BillingState>) => void;
+  setCollapsed: React.Dispatch<SetStateAction<boolean>>
+  collapsed: boolean
+  billState: BillingState
+  setBillState: (newState: Partial<BillingState>) => void
 }) => {
-  const { data } = api.products.getProductsForBilling.useQuery();
+  const { data } = api.products.getProductsForBilling.useQuery()
   // const [itemsData, setItemsData] = useState<Item[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [activeIndex, setActiveIndex] = useState<number>(-1);
-  const [billDone, setBillDone] = useState<boolean>(false);
-  const [shopData, setShopData] = useState<Shop | null>(null);
+  const [products, setProducts] = useState<Product[]>([])
+  const [activeIndex, setActiveIndex] = useState<number>(-1)
+  const [billDone, setBillDone] = useState<boolean>(false)
+  const [shopData, setShopData] = useState<Shop | null>(null)
 
-  const quantityRefs = useRef<Record<string, HTMLInputElement | null>>({});
-  const [noInvoice, setNoInvoice] = useState<boolean>(false);
-  const [billId, setBillId] = useState<string | null>(null);
-  const [printModal, setPrintModal] = useState<boolean>(false);
+  const quantityRefs = useRef<Record<string, HTMLInputElement | null>>({})
+  const [noInvoice, setNoInvoice] = useState<boolean>(false)
+  const [billId, setBillId] = useState<string | null>(null)
+  const [printModal, setPrintModal] = useState<boolean>(false)
   // const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
   //   PaymentMethod.CASH,
   // );
-  const { mutate: createBill } = api.billing.createBilling.useMutation();
-  const getInvoice = api.invoice.createInvoice.useMutation();
+  const { mutate: createBill } = api.billing.createBilling.useMutation()
+  const getInvoice = api.invoice.createInvoice.useMutation()
 
-  const router = useRouter();
+  const router = useRouter()
   useEffect(() => {
     if (data) {
-      setProducts(data[0] as Product[]);
-      setShopData(data[1] as Shop);
+      setProducts(data[0] as Product[])
+      setShopData(data[1] as Shop)
     }
-  }, [data]);
+  }, [data])
 
-  const handleNameChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: number,
-  ) => {
-    const newItems2 = [...billState.itemsData];
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const newItems2 = [...billState.itemsData]
     if (newItems2[index]) {
-      newItems2[index].name = e.target.value;
+      newItems2[index].name = e.target.value
     }
-    setBillState({ itemsData: newItems2 });
-  };
+    setBillState({ itemsData: newItems2 })
+  }
 
-  const handleQuantityChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: number,
-  ) => {
-    const newItems2 = [...billState.itemsData];
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const newItems2 = [...billState.itemsData]
     if (newItems2[index]) {
       if (Number(e.target.value) >= 0) {
-        newItems2[index].quantity = Number(e.target.value);
+        newItems2[index].quantity = Number(e.target.value)
       } else {
-        newItems2[index].quantity = 0;
+        newItems2[index].quantity = 0
       }
     }
-    setBillState({ itemsData: newItems2 });
-  };
+    setBillState({ itemsData: newItems2 })
+  }
 
-  const handlePriceChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: number,
-  ) => {
-    const newItems2 = [...billState.itemsData];
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const newItems2 = [...billState.itemsData]
     if (newItems2[index]) {
       if (Number(e.target.value) >= 0) {
-        newItems2[index].price = Number(e.target.value);
+        newItems2[index].price = Number(e.target.value)
       } else {
-        newItems2[index].price = 0;
+        newItems2[index].price = 0
       }
     }
-    setBillState({ itemsData: newItems2 });
-  };
+    setBillState({ itemsData: newItems2 })
+  }
 
-  const handleAddToBill = (
-    itemName: string,
-    itemPrice: number,
-    itemQuantity: number,
-  ) => {
-    if (billState.inputItem === "") return;
-    const allItems = [...billState.itemsData];
-    const existingItem = allItems.find((item) => item.name === itemName);
+  const handleAddToBill = (itemName: string, itemPrice: number, itemQuantity: number) => {
+    if (!itemName.trim()) {
+      toast.error("Item name cannot be empty")
+      return
+    }
+
+    if (itemPrice <= 0) {
+      toast.error("Item price must be greater than 0")
+      return
+    }
+
+    if (itemQuantity <= 0) {
+      toast.error("Item quantity must be greater than 0")
+      return
+    }
+
+    const allItems = [...billState.itemsData]
+    const existingItem = allItems.find((item) => item.name === itemName)
+
     if (existingItem) {
       const newItems = allItems.map((item) =>
-        item.name === itemName
-          ? { ...item, quantity: item.quantity + 1 }
-          : item,
-      );
-      setBillState({ itemsData: newItems });
-
-      setBillState({ inputItem: "" });
-      return;
+        item.name === itemName ? { ...item, quantity: item.quantity + 1 } : item,
+      )
+      setBillState({ itemsData: newItems })
+      setBillState({ inputItem: "" })
+      return
     }
 
-    const allItems2 = [...billState.itemsData];
     const newItem = {
       name: itemName,
       quantity: itemQuantity,
       price: itemPrice,
-    };
+    }
 
     setBillState({
-      itemsData: [...allItems2, newItem],
-    });
+      itemsData: [...allItems, newItem],
+    })
 
-    setBillState({ inputItem: "" });
-  };
+    setBillState({ inputItem: "" })
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const filteredProducts = products.filter(
       (product) =>
-        product.name
-          .toLowerCase()
-          .includes(billState.inputItem.toLowerCase()) ||
-        product.shortcut?.toString().toLowerCase() ===
-          billState.inputItem.toLowerCase(),
-    );
+        product.name.toLowerCase().includes(billState.inputItem.toLowerCase()) ||
+        product.shortcut?.toString().toLowerCase() === billState.inputItem.toLowerCase(),
+    )
 
-    if (filteredProducts.length === 0) return;
+    if (filteredProducts.length === 0) return
 
     if (e.key === "ArrowDown") {
-      setActiveIndex((prev) => Math.min(prev + 1, filteredProducts.length - 1));
+      setActiveIndex((prev) => Math.min(prev + 1, filteredProducts.length - 1))
     } else if (e.key === "ArrowUp") {
-      setActiveIndex((prev) => Math.max(prev - 1, 0));
+      setActiveIndex((prev) => Math.max(prev - 1, 0))
     } else if (e.key === "Enter" && activeIndex >= 0) {
-      const selectedProduct = filteredProducts[activeIndex];
+      const selectedProduct = filteredProducts[activeIndex]
       if (selectedProduct) {
-        handleAddToBill(selectedProduct.name, selectedProduct.price, 1);
-        setActiveIndex(-1);
-        setBillState({ inputItem: "" });
+        handleAddToBill(selectedProduct.name, selectedProduct.price, 1)
+        setActiveIndex(-1)
+        setBillState({ inputItem: "" })
         setTimeout(() => {
-          quantityRefs.current[selectedProduct.name]?.focus();
-        }, 0);
+          quantityRefs.current[selectedProduct.name]?.focus()
+        }, 0)
       }
     }
-  };
+  }
 
   useEffect(() => {
     const filteredProducts = products.filter(
       (product) =>
-        product.name
-          .toLowerCase()
-          .includes(billState.inputItem.toLowerCase()) ||
-        product.shortcut?.toString().toLowerCase() ===
-          billState.inputItem.toLowerCase(),
-    );
+        product.name.toLowerCase().includes(billState.inputItem.toLowerCase()) ||
+        product.shortcut?.toString().toLowerCase() === billState.inputItem.toLowerCase(),
+    )
 
     if (filteredProducts.length > 0) {
-      setActiveIndex(0);
+      setActiveIndex(0)
     } else {
-      setActiveIndex(-1);
+      setActiveIndex(-1)
     }
-  }, [billState.inputItem, products]);
+  }, [billState.inputItem, products])
 
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null)
 
   const handleDeleteItem = (item: Item) => {
-    const allItems = [...billState.itemsData];
-    const newItems = allItems.filter((i) => i.name !== item.name);
-    setBillState({ itemsData: newItems });
-  };
+    const allItems = [...billState.itemsData]
+    const newItems = allItems.filter((i) => i.name !== item.name)
+    setBillState({ itemsData: newItems })
+  }
 
   function handlePaymentMethodChange(value: string): void {
-    setBillState({ paymentMethod: value as PaymentMethod });
+    setBillState({ paymentMethod: value as PaymentMethod })
   }
 
   // const saveToLocal = () => {
@@ -251,37 +243,36 @@ const BillingDashboard = ({
   // }, []);
 
   const handleConfirmBill = () => {
-    const allItems = [...billState.itemsData];
+    const allItems = [...billState.itemsData]
+
     if (allItems.length === 0) {
-      alert("No items in the bill");
-      return;
+      toast.error("No items in the bill")
+      return
     }
-    const hasInvalidPrice = allItems.some((item) => item.price <= 0);
+
+    // Validate all items have valid prices
+    const hasInvalidPrice = allItems.some((item) => item.price <= 0)
     if (hasInvalidPrice) {
-      alert(
-        "Some items have a price of 0 or less. Please correct them before confirming the bill.",
-      );
-      return;
+      toast.error("Some items have a price of 0 or less. Please correct them before confirming the bill.")
+      return
     }
-    const hasInvalidQuantity = allItems.some((item) => item.quantity <= 0);
+
+    // Validate all items have valid quantities
+    const hasInvalidQuantity = allItems.some((item) => item.quantity <= 0)
     if (hasInvalidQuantity) {
-      alert(
-        "Some items have a quantity of 0 or less. Please correct them before confirming the bill.",
-      );
-      return;
+      toast.error("Some items have a quantity of 0 or less. Please correct them before confirming the bill.")
+      return
     }
-    const hasInvalidName = allItems.some((item) => item.name === "");
+
+    // Validate all items have names
+    const hasInvalidName = allItems.some((item) => item.name === "")
     if (hasInvalidName) {
-      alert(
-        "Some items have no name. Please correct them before confirming the bill.",
-      );
-      return;
+      toast.error("Some items have no name. Please correct them before confirming the bill.")
+      return
     }
-    const total = allItems.reduce(
-      (total, item) => total + item.quantity * item.price,
-      0,
-    );
-    toast.loading("Creating Bill");
+
+    const total = allItems.reduce((total, item) => total + item.quantity * item.price, 0)
+    toast.loading("Creating Bill")
 
     if (shopData?.id) {
       createBill(
@@ -296,72 +287,67 @@ const BillingDashboard = ({
               price: item.price,
               quantity: item.quantity,
               productId:
-                products.find(
-                  (product) =>
-                    product.name === item.name && product.price === item.price,
-                )?.id ?? undefined,
-            };
+                products.find((product) => product.name === item.name && product.price === item.price)?.id ?? undefined,
+            }
           }),
         },
         {
           onSuccess: (bill: Bill) => {
-            toast.dismiss();
-            toast.success("Bill created successfully");
-            setBillId(bill.id);
-            setBillDone(true);
-            if(!noInvoice) {
-            setPrintModal(true);
-            }
-            else{
-              toast.success("Bill created successfully");
-              clearItems();
+            toast.dismiss()
+            toast.success("Bill created successfully")
+            setBillId(bill.id)
+            setBillDone(true)
+            if (!noInvoice) {
+              setPrintModal(true)
+            } else {
+              toast.success("Bill created successfully")
+              clearItems()
             }
           },
-          onError: () => {
-            toast.error("Network Error, don't worry bills are safe");
-            // saveToLocal();
+          onError: (error) => {
+            toast.dismiss()
+            toast.error(error.message || "Network Error, don't worry bills are safe")
           },
         },
-      );
+      )
     } else {
-      toast.error("Error fetching, Shop not found, still bill created locally");
+      toast.dismiss()
+      toast.error("Error fetching, Shop not found")
     }
-  };
+  }
 
   const handlePrintBill = async () => {
     await getInvoice.mutateAsync(shopData?.id + "-" + billId, {
       onSuccess: (response) => {
-        window.location.href = response;
+        window.location.href = response
       },
       onError: (error) => {
-        console.error("PDF generation failed:", error);
+        console.error("PDF generation failed:", error)
       },
-    });
-  };
+    })
+  }
 
   const clearItems = () => {
-    setBillState({ itemsData: [] });
-    setPrintModal(false);
-    setBillDone(false);
-  };
+    setBillState({ itemsData: [] })
+    setPrintModal(false)
+    setBillDone(false)
+  }
 
   return (
     <div className="scrollbar-hide flex h-screen w-full flex-col overflow-auto bg-gray-800 pb-4">
       <div className="flex max-h-screen w-full justify-between border-b-2 border-gray-500 bg-gray-900 p-4">
         <div>{""}</div>
-        <h1 className="text-center">
-          {shopData ? shopData.name + " Billing" : ""}
-        </h1>
+        <h1 className="text-center">{shopData ? shopData.name + " Billing" : ""}</h1>
         <div className="float-right flex items-center gap-6">
-        <label className="flex items-center gap-2">
+          <label className="flex items-center gap-2">
             <span>No Invoice Mode</span>
             <button
               onClick={() => {
-                setNoInvoice((prev) => !prev);
+                setNoInvoice((prev) => !prev)
                 if (!noInvoice) {
-                  toast.success("No Invoice Mode Enabled");
+                  toast.success("No Invoice Mode Enabled")
                 } else {
-                  toast.info("No Invoice Mode Disabled");
+                  toast.info("No Invoice Mode Disabled")
                 }
               }}
               className={`relative h-6 w-12 rounded-full transition-colors ${
@@ -379,11 +365,11 @@ const BillingDashboard = ({
             <span>Advanced Mode</span>
             <button
               onClick={() => {
-                setCollapsed((prev) => !prev);
+                setCollapsed((prev) => !prev)
                 if (!collapsed) {
-                  toast.success("Advanced Mode Enabled");
+                  toast.success("Advanced Mode Enabled")
                 } else {
-                  toast.info("Advanced Mode Disabled");
+                  toast.info("Advanced Mode Disabled")
                 }
               }}
               className={`relative h-6 w-12 rounded-full transition-colors ${
@@ -418,23 +404,18 @@ const BillingDashboard = ({
               {products
                 .filter(
                   (product) =>
-                    product.name
-                      .toLowerCase()
-                      .includes(billState.inputItem.toLowerCase()) ||
-                    product.shortcut?.toString().toLowerCase() ===
-                      billState.inputItem.toLowerCase(),
+                    product.name.toLowerCase().includes(billState.inputItem.toLowerCase()) ||
+                    product.shortcut?.toString().toLowerCase() === billState.inputItem.toLowerCase(),
                 )
                 .map((product, index) => (
                   <div
                     key={index}
                     onClick={() => {
-                      handleAddToBill(product.name, product.price, 1);
-                      setActiveIndex(-1);
+                      handleAddToBill(product.name, product.price, 1)
+                      setActiveIndex(-1)
                     }}
                     className={`cursor-pointer px-4 py-2 ${
-                      index === activeIndex
-                        ? "bg-gray-400"
-                        : "hover:bg-gray-400"
+                      index === activeIndex ? "bg-gray-400" : "hover:bg-gray-400"
                     }`}
                   >
                     {product.shortcut + ". " + product.name}
@@ -447,7 +428,7 @@ const BillingDashboard = ({
           <button
             type="button"
             onClick={() => {
-              handleAddToBill(billState.inputItem, 0, 0);
+              handleAddToBill(billState.inputItem, 0, 0)
             }}
             className="h-10 w-full rounded-lg bg-green-700"
           >
@@ -473,10 +454,7 @@ const BillingDashboard = ({
                     <tr key={index} className="border-b-[1px] border-gray-700">
                       <td className="relative max-w-[200px] overflow-hidden truncate whitespace-nowrap border-gray-500 p-0 focus:border-b-[1px] focus:border-gray-400">
                         <div className="absolute left-4 translate-y-1/2">
-                          <Trash2Icon
-                            className="cursor-pointer"
-                            onClick={() => handleDeleteItem(item)}
-                          />
+                          <Trash2Icon className="cursor-pointer" onClick={() => handleDeleteItem(item)} />
                         </div>
                         <input
                           type="text"
@@ -491,16 +469,14 @@ const BillingDashboard = ({
                           type="text"
                           name="quantity"
                           ref={(el) => {
-                            (quantityRefs.current[item.name] = el);
+                            quantityRefs.current[item.name] = el
                           }}
-                          onKeyDown={
-                            (e)=>{
-                              if (e.key === "Enter"){
-                                e.preventDefault();
-                                inputRef.current?.focus();
-                              }
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault()
+                              inputRef.current?.focus()
                             }
-                          }
+                          }}
                           value={item.quantity || 0}
                           onChange={(e) => handleQuantityChange(e, index)}
                           className={`block h-full w-full px-4 py-4 text-center outline-none ${
@@ -515,14 +491,12 @@ const BillingDashboard = ({
                           type="text"
                           value={`${item.price}`}
                           name="price"
-                          onKeyDown={
-                            (e)=>{
-                              if (e.key === "Enter"){
-                                e.preventDefault();
-                                inputRef.current?.focus();
-                              }
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault()
+                              inputRef.current?.focus()
                             }
-                          }
+                          }}
                           onChange={(e) => handlePriceChange(e, index)}
                           className={`block h-full w-full px-4 py-4 text-center outline-none ${
                             item.price !== 0
@@ -530,17 +504,13 @@ const BillingDashboard = ({
                               : "bg-red-400/60 hover:bg-gray-800 focus:bg-gray-800"
                           }`}
                         />
-                        <span className="absolute right-4 top-1/2 -translate-y-1/2 transform">
-                          ₹
-                        </span>
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 transform">₹</span>
                       </td>
                       <td className="relative w-1/5 border-gray-500 p-0 text-center focus:border-b-[1px] focus:border-gray-400">
                         <div className="block h-full w-full cursor-default bg-transparent px-4 py-4 text-center">
                           {item.quantity * item.price}
                         </div>
-                        <span className="absolute right-4 top-1/2 -translate-y-1/2 transform">
-                          ₹
-                        </span>
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 transform">₹</span>
                       </td>
                     </tr>
                   ))}
@@ -550,23 +520,13 @@ const BillingDashboard = ({
           </div>
         </div>
         <div className="w-1/5 rounded-lg bg-gray-900">
-          <h1 className="mt-4 text-center text-2xl font-bold underline">
-            Summary
-          </h1>
+          <h1 className="mt-4 text-center text-2xl font-bold underline">Summary</h1>
           <h2 className="mt-7 text-center text-xl">
-            Total Items:{" "}
-            {billState.itemsData.reduce(
-              (total, item) => total + item.quantity,
-              0,
-            )}
+            Total Items: {billState.itemsData.reduce((total, item) => total + item.quantity, 0)}
           </h2>
           <div className="bg-gray-700">
             <h2 className="mt-5 p-3 text-center text-xl font-bold text-green-500">
-              Final Price:{" "}
-              {billState.itemsData.reduce(
-                (total, item) => total + item.quantity * item.price,
-                0,
-              )}
+              Final Price: {billState.itemsData.reduce((total, item) => total + item.quantity * item.price, 0)}
               rs
             </h2>
           </div>
@@ -599,7 +559,7 @@ const BillingDashboard = ({
                   >
                     <span className="flex items-center gap-2 text-base font-medium">
                       {label}
-                      <img src={icon} alt={label} className="h-6 w-6" />
+                      <img src={icon || "/placeholder.svg"} alt={label} className="h-6 w-6" />
                     </span>
                   </button>
                 ))}
@@ -607,12 +567,7 @@ const BillingDashboard = ({
             </div>
           </div>
           <div className="flex w-full justify-center gap-4">
-            <Button
-              onClick={handleConfirmBill}
-              className="mt-4"
-              disabled={billDone}
-              variant="secondary"
-            >
+            <Button onClick={handleConfirmBill} className="mt-4" disabled={billDone} variant="secondary">
               Confirm Bill{" "}
             </Button>
           </div>
@@ -623,9 +578,7 @@ const BillingDashboard = ({
           <div className="flex h-fit w-1/4 flex-col items-end rounded-lg bg-gray-700 p-5">
             <div className="w-full text-left">
               {" "}
-              <h2 className="mb-4 text-xl">
-                Do you want to print the invoice?
-              </h2>
+              <h2 className="mb-4 text-xl">Do you want to print the invoice?</h2>
             </div>
             <div className="flex gap-3">
               <Button className="bg-blue-800" onClick={handlePrintBill}>
@@ -639,7 +592,7 @@ const BillingDashboard = ({
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default BillingDashboard;
+export default BillingDashboard

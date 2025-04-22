@@ -1,94 +1,106 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import { Button } from "~/app/components/ui/button";
-import { useRouter, useSearchParams } from "next/navigation";
-import { api } from "~/trpc/react";
+"use client"
+import type React from "react"
+import { useEffect, useState } from "react"
+import { Button } from "~/app/components/ui/button"
+import { useRouter, useSearchParams } from "next/navigation"
+import { api } from "~/trpc/react"
+import { toast } from "react-hot-toast"
 
 const VerifyEmail = () => {
-  const router = useRouter();
-  const [otp, setOtp] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const router = useRouter()
+  const [otp, setOtp] = useState("")
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
 
-  const queryParams = useSearchParams();
-  const email = queryParams.get("email");
-  const { mutate: resendOtp } = api.user.resendEmailOtp.useMutation();
+  const queryParams = useSearchParams()
+  const email = queryParams.get("email")
+  const { mutate: resendOtp } = api.user.resendEmailOtp.useMutation()
 
-  const { data: checkEmail } = email
-    ? api.user.checkEmailOtpPresence.useQuery({ email }, { enabled: true })
-    : { data: null };
+  const { data: checkEmail } = api.user.checkEmailOtpPresence.useQuery({ email: email || "" }, { enabled: !!email })
 
   useEffect(() => {
     if (!checkEmail) {
-      router.push("/auth/signup");
+      router.push("/auth/signup")
     }
-  }, [checkEmail]);
-  const { mutate: verifyOtp } = api.user.verifyEmailOtp.useMutation();
+  }, [checkEmail, router])
+  const { mutate: verifyOtp } = api.user.verifyEmailOtp.useMutation()
 
   const resendEmail = () => {
     if (!email) {
-      setError("Email is required to resend OTP");
-      return;
+      setError("Email is required to resend OTP")
+      return
     }
-    setError("");
-    setSuccess("");
+
+    setError("")
+    setSuccess("")
 
     resendOtp(
       { email },
       {
         onSuccess: () => {
-          setSuccess("OTP resent successfully!");
+          setSuccess("OTP resent successfully!")
+          toast.success("OTP resent successfully!")
         },
         onError: (err) => {
-          setError(err.message);
+          setError(err.message)
+          toast.error(err.message)
         },
       },
-    );
-  };
+    )
+  }
 
   const handleVerify = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (otp.length !== 6) {
-      setError("OTP must be 6 digits");
-      return;
+    e.preventDefault()
+
+    // Clear previous messages
+    setError("")
+    setSuccess("")
+
+    // Validate OTP format
+    if (!otp.trim()) {
+      setError("OTP is required")
+      return
+    }
+
+    if (!/^\d{6}$/.test(otp)) {
+      setError("OTP must be 6 digits")
+      return
     }
 
     if (!email) {
-      setError("Email is required to verify OTP");
-      return;
+      setError("Email is required to verify OTP")
+      return
     }
 
+    // All validations passed, proceed with verification
     verifyOtp(
       { email, otp },
       {
-        onSuccess: (res) => {
-          setSuccess("Email verified successfully!");
-          setError("");
+        onSuccess: () => {
+          setSuccess("Email verified successfully!")
+          setError("")
+          toast.success("Email verified successfully!")
           setTimeout(() => {
-            router.push("/dashboard"); // or wherever you want to redirect
-          }, 1500);
+            router.push("/dashboard")
+          }, 1500)
         },
         onError: (err) => {
-          setError(err.message);
-          setSuccess("");
+          setError(err.message)
+          toast.error(err.message)
+          setSuccess("")
         },
       },
-    );
-  };
+    )
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-md space-y-6 rounded-xl bg-gray-800 p-8 shadow-md">
-        <h2 className="text-center text-2xl font-bold text-gray-200">
-          Verify Email
-        </h2>
+        <h2 className="text-center text-2xl font-bold text-gray-200">Verify Email</h2>
 
         <form className="space-y-6" onSubmit={handleVerify}>
           <div>
-            <label
-              htmlFor="otp"
-              className="block text-sm font-medium text-gray-600"
-            >
+            <label htmlFor="otp" className="block text-sm font-medium text-gray-600">
               Enter OTP sent to your email:
             </label>
             <input
@@ -104,11 +116,7 @@ const VerifyEmail = () => {
           </div>
 
           <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={resendEmail}
-              className="text-sm text-indigo-500 hover:underline"
-            >
+            <button type="button" onClick={resendEmail} className="text-sm text-indigo-500 hover:underline">
               Resend OTP
             </button>
           </div>
@@ -126,7 +134,7 @@ const VerifyEmail = () => {
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default VerifyEmail;
+export default VerifyEmail

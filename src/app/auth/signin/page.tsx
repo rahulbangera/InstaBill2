@@ -1,76 +1,96 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import { Button } from "~/app/components/ui/button";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
-import Link from "next/link";
-import { Dialog } from "~/components/ui/dialog";
-import Image from "next/image";
-import { api } from "~/trpc/react";
+"use client"
+import type React from "react"
+import { useEffect, useState } from "react"
+import { Button } from "~/app/components/ui/button"
+import { signIn } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
+import Link from "next/link"
+import Image from "next/image"
+import { api } from "~/trpc/react"
+import { toast } from "react-hot-toast"
 
 const Signin = () => {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [error, setError] = useState<string>("");
-  const { mutate: sendemail } = api.user.sendmail.useMutation();
-  const [modal, setModal] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>("")
+  const [password, setPassword] = useState<string>("")
+  const [error, setError] = useState<string>("")
+  const { mutate: sendemail } = api.user.sendmail.useMutation()
+  const [modal, setModal] = useState<boolean>(false)
 
-  const router = useRouter();
-  const { data: session } = useSession();
+  const router = useRouter()
+  const { data: session } = useSession()
 
   useEffect(() => {
     if (session) {
-      router.push("/");
+      router.push("/")
     }
-  }, [session]);
+  }, [session])
 
   const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
+
+    // Clear previous errors
+    setError("")
+
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!email.trim()) {
+      setError("Email is required")
+      toast.error("Email is required")
+      return
+    }
+
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address")
+      toast.error("Please enter a valid email address")
+      return
+    }
+
+    // Validate password
+    if (!password.trim()) {
+      setError("Password is required")
+      toast.error("Password is required")
+      return
+    }
+
+    // All validations passed, proceed with signin
     const response = await signIn("credentials", {
       email,
       password,
       redirect: false,
       callbackUrl: "http://localhost:3000",
-    });
-    if (response) {
-      console.log(response);
+    })
 
+    if (response) {
       if (response.error) {
-        console.log(response.error);
         if (response.error.includes("Configuration")) {
-          setError("User not verified, redirecting...");
-          setModal(true);
-          router.push("/auth/verifyotp?email=" + email);
+          setError("User not verified, redirecting...")
+          setModal(true)
+          router.push("/auth/verifyotp?email=" + email)
         } else if (response.error.includes("Credentials")) {
-          setError("Invalid Login");
+          setError("Invalid email or password")
+          toast.error("Invalid email or password")
+          setModal(true)
         } else {
-          setError(response.error);
+          setError(response.error)
+          toast.error(response.error)
+          setModal(true)
         }
-        setModal(true);
       } else if (response.ok) {
-        setModal(true);
-        setError("");
-        // void sendemail({ email: email });
-        // setTimeout(() => {
-        //   router.push("/");
-        // }, 2000);
+        setModal(true)
+        setError("")
+        toast.success("Signed in successfully!")
       }
     }
-  };
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-900">
       <div className="w-full max-w-md space-y-6 rounded-xl border border-gray-700 bg-gray-800 p-8 shadow-lg">
-        <h2 className="text-center text-2xl font-bold text-gray-100">
-          Sign In
-        </h2>
+        <h2 className="text-center text-2xl font-bold text-gray-100">Sign In</h2>
         <form className="space-y-6">
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-300"
-            >
+            <label htmlFor="email" className="block text-sm font-medium text-gray-300">
               Email:
             </label>
             <input
@@ -84,10 +104,7 @@ const Signin = () => {
             />
           </div>
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-300"
-            >
+            <label htmlFor="password" className="block text-sm font-medium text-gray-300">
               Password:
             </label>
             <input
@@ -110,10 +127,7 @@ const Signin = () => {
           </Button>
           <h2 className="text-gray-300">
             Don&apos;t have an account?{" "}
-            <Link
-              href={"/auth/signup"}
-              className="font-bold text-indigo-400 hover:text-indigo-300 hover:underline"
-            >
+            <Link href={"/auth/signup"} className="font-bold text-indigo-400 hover:text-indigo-300 hover:underline">
               Create Now
             </Link>
           </h2>
@@ -122,13 +136,7 @@ const Signin = () => {
       {modal && error === "" && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="flex h-1/4 w-1/4 flex-col items-center justify-center rounded-lg bg-gray-700 p-5">
-            <Image
-              src={"/greencheckmark.png"}
-              width={100}
-              height={100}
-              priority
-              alt="success"
-            />
+            <Image src={"/greencheckmark.png"} width={100} height={100} priority alt="success" />
             <h2 className="text-lg">Signed in Sucessfully</h2>
             <p className="m-2 text-gray-400">Redirecting to Dashboard...</p>
           </div>
@@ -137,19 +145,13 @@ const Signin = () => {
       {modal && error !== "" && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="flex h-1/4 w-1/4 flex-col items-center justify-center rounded-lg bg-gray-700 p-5">
-            <Image
-              src={"/redcrossmark.png"}
-              width={100}
-              height={100}
-              priority
-              alt="success"
-            />
+            <Image src={"/redcrossmark.png"} width={100} height={100} priority alt="success" />
             <h2 className="text-lg">Invalid Credentials</h2>
             <Button
               className="m-2 bg-blue-800"
               onClick={() => {
-                setModal(false);
-                setError("");
+                setModal(false)
+                setError("")
               }}
             >
               Try Again
@@ -158,7 +160,7 @@ const Signin = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default Signin;
+export default Signin

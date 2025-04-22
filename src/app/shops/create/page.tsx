@@ -1,146 +1,242 @@
-"use client";
+"use client"
 
-import React, { useEffect, useState } from "react";
-import { UploadButton } from "~/utils/uploadthing";
-import Image from "next/image";
-import { api } from "~/trpc/react";
-import { Cross1Icon } from "@radix-ui/react-icons";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { useEffect, useState } from "react"
+import { UploadButton } from "~/utils/uploadthing"
+import Image from "next/image"
+import { api } from "~/trpc/react"
+import { Cross1Icon } from "@radix-ui/react-icons"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 interface Employee {
-  name: string;
-  email: string;
-  phone: string;
+  name: string
+  email: string
+  phone: string
 }
 
 interface Shop {
-  name: string;
-  address: string;
-  phone: string;
-  email: string;
+  name: string
+  address: string
+  phone: string
+  email: string
 }
 
 interface City {
-  name: string;
-  district: string;
-  state: string;
+  name: string
+  district: string
+  state: string
+}
+
+// Add these validation functions at the top of the component
+const validateStoreForm = (
+  shopData: Shop,
+  productCode: { locationCode: string; customCode: string; yearCode: string },
+  shopPinCode: string,
+  shopCity: string,
+) => {
+  // Validate store name
+  if (!shopData.name.trim()) {
+    toast.error("Store name is required")
+    return false
+  }
+
+  // Validate store address
+  if (!shopData.address.trim()) {
+    toast.error("Store address is required")
+    return false
+  }
+
+  // Validate store email
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!shopData.email.trim()) {
+    toast.error("Store email is required")
+    return false
+  }
+
+  if (!emailRegex.test(shopData.email)) {
+    toast.error("Please enter a valid store email")
+    return false
+  }
+
+  // Validate store phone
+  if (!shopData.phone.trim()) {
+    toast.error("Store phone is required")
+    return false
+  }
+
+  if (!/^\d{10}$/.test(shopData.phone.replace(/[^0-9]/g, ""))) {
+    toast.error("Please enter a valid 10-digit phone number")
+    return false
+  }
+
+  // Validate product code
+  if (productCode.customCode.trim().length < 4) {
+    toast.error("Product code must be at least 4 characters long")
+    return false
+  }
+
+  // Validate pin code and city
+  if (shopPinCode.length !== 6 || !/^\d{6}$/.test(shopPinCode)) {
+    toast.error("Please enter a valid 6-digit pin code")
+    return false
+  }
+
+  if (!shopCity) {
+    toast.error("Please select a city")
+    return false
+  }
+
+  return true
 }
 
 const Page = () => {
-  const router = useRouter();
-  const [storeImage, setStoreImage] = useState<string>("");
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [cities, setCities] = useState<City[]>([]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [fetchCitiesDone, setFetchCitiesDone] = useState(false);
-  const [shopPinCode, setShopPinCode] = useState<string>("");
-  const { refetch: getCities } = api.shops.getCitiesByPinCode.useQuery(
-    shopPinCode,
-    { enabled: false },
-  );
+  const router = useRouter()
+  const [storeImage, setStoreImage] = useState<string>("")
+  const [employees, setEmployees] = useState<Employee[]>([])
+  const [cities, setCities] = useState<City[]>([])
+  const [modalOpen, setModalOpen] = useState(false)
+  const [fetchCitiesDone, setFetchCitiesDone] = useState(false)
+  const [shopPinCode, setShopPinCode] = useState<string>("")
+  const { refetch: getCities } = api.shops.getCitiesByPinCode.useQuery(shopPinCode, { enabled: false })
 
-  const [deletionModal, setDeletionModal] = useState(false);
+  const [deletionModal, setDeletionModal] = useState(false)
   const [productCode, setProductCode] = useState({
     locationCode: "",
     customCode: "",
     yearCode: new Date().getFullYear().toString().slice(-2),
-  });
+  })
 
-  const [employeeData, setEmployeeData] = useState<Employee>({
+  const [employeeAddData, setEmployeeAddData] = useState<Employee>({
     name: "",
     email: "",
     phone: "",
-  });
+  })
 
-  const [shopCity, setShopCity] = useState<string>("");
+  const [shopCity, setShopCity] = useState<string>("")
 
   useEffect(() => {
     if (shopCity.length > 0) {
       setProductCode((prev) => ({
         ...prev,
         locationCode: shopCity.toUpperCase().slice(0, 3),
-      }));
+      }))
     } else {
       if (fetchCitiesDone === true) {
-        setCities([]);
-        setFetchCitiesDone(false);
+        setCities([])
+        setFetchCitiesDone(false)
       }
-      console.log("Shop City is empty");
+      console.log("Shop City is empty")
       setProductCode((prev) => ({
         ...prev,
         locationCode: "",
-      }));
+      }))
     }
-  }, [shopCity]);
+  }, [shopCity])
 
   const [shopData, setShopData] = useState<Shop>({
     name: "",
     address: "",
     phone: "",
     email: "",
-  });
+  })
 
   useEffect(() => {
     setProductCode((prev) => ({
       ...prev,
       customCode: shopData.name.toUpperCase().slice(0, 4),
-    }));
-  }, [shopData.name]);
+    }))
+  }, [shopData.name])
 
+  // Replace the handlePinCodeConfirmation function with this improved version
   const handlePinCodeConfirmation = () => {
-    if (shopPinCode.length === 6) {
-      getCities()
-        .then((res) => {
-          if (res) {
-            console.log(res);
-            setFetchCitiesDone(true);
-            setCities(res.data ?? []);
+    if (shopPinCode.length !== 6 || !/^\d{6}$/.test(shopPinCode)) {
+      toast.error("Please enter a valid 6-digit pin code")
+      return
+    }
+
+    getCities()
+      .then((res) => {
+        if (res) {
+          setFetchCitiesDone(true)
+          setCities(res.data ?? [])
+          if (res.data && res.data.length > 0) {
+            toast.success("Cities fetched successfully")
+          } else {
+            toast.error("No cities found for this pin code")
           }
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-    } else {
-      toast.error("Please enter a valid pin code");
-    }
-  };
+        }
+      })
+      .catch((err) => {
+        toast.error(err.message || "Failed to fetch cities")
+      })
+  }
 
-  const { mutate: deleteImage } = api.ut.deleteImage.useMutation();
-  const { mutate: createStore } = api.shops.createStore.useMutation();
+  const { mutate: deleteImage } = api.ut.deleteImage.useMutation()
+  const { mutate: createStore } = api.shops.createStore.useMutation()
 
+  // Replace the addEmployee function with this improved version
   const addEmployee = () => {
-    if (employeeData.name && employeeData.email && employeeData.phone) {
-      setEmployees([...employees, employeeData]);
-      setEmployeeData({ name: "", email: "", phone: "" });
-      setModalOpen(false);
+    // Validate employee name
+    if (!employeeAddData.name.trim()) {
+      toast.error("Employee name is required")
+      return
     }
-  };
+
+    // Validate employee email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!employeeAddData.email.trim()) {
+      toast.error("Employee email is required")
+      return
+    }
+
+    if (!emailRegex.test(employeeAddData.email)) {
+      toast.error("Please enter a valid employee email")
+      return
+    }
+
+    // Validate employee phone
+    if (!employeeAddData.phone.trim()) {
+      toast.error("Employee phone is required")
+      return
+    }
+
+    if (!/^\d{10}$/.test(employeeAddData.phone.replace(/[^0-9]/g, ""))) {
+      toast.error("Please enter a valid 10-digit phone number")
+      return
+    }
+
+    // All validations passed, add employee
+    setEmployees([...employees, employeeAddData])
+    setEmployeeAddData({ name: "", email: "", phone: "" })
+    setModalOpen(false)
+    toast.success("Employee added to list")
+  }
 
   const handleImageDeletion = async () => {
     deleteImage(
       { url: storeImage },
       {
         onSuccess: () => {
-          setStoreImage("");
-          setDeletionModal(false);
+          setStoreImage("")
+          setDeletionModal(false)
         },
         onError: () => {
-          console.error("Failed to delete image");
+          console.error("Failed to delete image")
         },
       },
-    );
-  };
+    )
+  }
 
   const handleEmployeeDeletion = (emp: Employee) => {
-    setEmployees(employees.filter((employee) => employee !== emp));
-  };
+    setEmployees(employees.filter((employee) => employee !== emp))
+  }
 
+  // Replace the handleShopCreation function with this improved version
   const handleShopCreation = () => {
-    if (productCode.customCode.trim().length < 4) {
-      toast.error("Product code must be at least 4 characters long");
-      return;
+    if (!validateStoreForm(shopData, productCode, shopPinCode, shopCity)) {
+      return
     }
+
     createStore(
       {
         name: shopData.name,
@@ -153,30 +249,30 @@ const Page = () => {
       },
       {
         onSuccess: () => {
-          console.log("Store created successfully");
-          router.push("/dashboard/owner");
+          toast.success("Store created successfully")
+          router.push("/dashboard/owner")
         },
         onError: (error) => {
-          console.error(error);
+          toast.error(error.message || "Failed to create store")
         },
       },
-    );
-  };
+    )
+  }
 
   useEffect(() => {
     if (shopPinCode.length !== 6) {
-      setShopCity(""); // reset city selection
+      setShopCity("") // reset city selection
     }
-  }, [shopPinCode]);
+  }, [shopPinCode])
 
   useEffect(() => {
     if (!shopCity && cities.length > 0) {
-      const firstDistrict = cities[0]?.district;
+      const firstDistrict = cities[0]?.district
       if (firstDistrict) {
-        setShopCity(firstDistrict);
+        setShopCity(firstDistrict)
       }
     }
-  }, [cities]);
+  }, [cities])
 
   return (
     <div className="flex h-screen items-center justify-center bg-opacity-80">
@@ -194,9 +290,7 @@ const Page = () => {
         <div className="mb-3">
           <label className="block">Store Address</label>
           <textarea
-            onChange={(e) =>
-              setShopData({ ...shopData, address: e.target.value })
-            }
+            onChange={(e) => setShopData({ ...shopData, address: e.target.value })}
             className="mt-1 w-full rounded border border-gray-300 bg-gray-600 p-2"
           />
           <div className="h-18 mb-2 mt-2 flex w-full items-center justify-evenly">
@@ -221,22 +315,18 @@ const Page = () => {
               <label className="block">Store City:</label>
               <select
                 onChange={(e) => setShopCity(e.target.value)}
-                value={
-                  shopCity || (cities.length > 0 ? cities[0]?.district : "")
-                }
+                value={shopCity || (cities.length > 0 ? cities[0]?.district : "")}
                 className="w-full rounded border border-gray-300 bg-gray-600 p-[0.6rem]"
               >
                 <option value="" disabled>
                   Select City
                 </option>
                 {shopPinCode.length === 6 &&
-                  Array.from(new Set(cities.map((city) => city.district))).map(
-                    (uniqueDistrict, index) => (
-                      <option key={index} value={uniqueDistrict}>
-                        {uniqueDistrict}
-                      </option>
-                    ),
-                  )}
+                  Array.from(new Set(cities.map((city) => city.district))).map((uniqueDistrict, index) => (
+                    <option key={index} value={uniqueDistrict}>
+                      {uniqueDistrict}
+                    </option>
+                  ))}
               </select>
             </div>
             <div className="">
@@ -283,15 +373,9 @@ const Page = () => {
           <label className="block">Employees:</label>
           <div className="flex flex-wrap gap-2 rounded border bg-gray-600 p-2">
             {employees.map((emp, index) => (
-              <span
-                key={index}
-                className="flex items-center gap-2 rounded-full bg-orange-500 px-3 py-1 text-white"
-              >
+              <span key={index} className="flex items-center gap-2 rounded-full bg-orange-500 px-3 py-1 text-white">
                 {emp.name}
-                <Cross1Icon
-                  className="cursor-pointer"
-                  onClick={() => handleEmployeeDeletion(emp)}
-                />
+                <Cross1Icon className="cursor-pointer" onClick={() => handleEmployeeDeletion(emp)} />
               </span>
             ))}
             <div className="flex w-full justify-end">
@@ -310,9 +394,7 @@ const Page = () => {
             <label className="block">Store Email:</label>
             <input
               type="text"
-              onChange={(e) =>
-                setShopData({ ...shopData, email: e.target.value })
-              }
+              onChange={(e) => setShopData({ ...shopData, email: e.target.value })}
               className="mt-1 w-full rounded border border-gray-300 bg-gray-600 p-2"
             />
           </div>
@@ -322,7 +404,7 @@ const Page = () => {
               {storeImage !== "" ? (
                 <div className="group relative h-full w-full">
                   <Image
-                    src={storeImage}
+                    src={storeImage || "/placeholder.svg"}
                     alt="Store Image"
                     className="rounded object-cover"
                     fill
@@ -342,8 +424,8 @@ const Page = () => {
                   onUploadBegin={() => console.log("Uploading----")}
                   onUploadProgress={(progress) => console.log(progress)}
                   onClientUploadComplete={(res) => {
-                    console.log("Upload complete");
-                    setStoreImage(res[0]?.ufsUrl ?? "");
+                    console.log("Upload complete")
+                    setStoreImage(res[0]?.ufsUrl ?? "")
                   }}
                   onUploadError={(error) => console.error(error)}
                 />
@@ -354,9 +436,7 @@ const Page = () => {
             <label className="block">Store Phone:</label>
             <input
               type="text"
-              onChange={(e) =>
-                setShopData({ ...shopData, phone: e.target.value })
-              }
+              onChange={(e) => setShopData({ ...shopData, phone: e.target.value })}
               className="mt-1 w-full rounded border border-gray-300 bg-gray-600 p-2"
             />
           </div>
@@ -378,16 +458,10 @@ const Page = () => {
             <h2 className="mb-4 text-xl">Delete Image</h2>
             <p>Are you sure you want to delete this image?</p>
             <div className="mt-4 flex justify-end gap-2">
-              <button
-                onClick={() => setDeletionModal(false)}
-                className="rounded bg-gray-400 px-3 py-1 text-white"
-              >
+              <button onClick={() => setDeletionModal(false)} className="rounded bg-gray-400 px-3 py-1 text-white">
                 Cancel
               </button>
-              <button
-                onClick={() => handleImageDeletion()}
-                className="rounded bg-red-500 px-3 py-1 text-white"
-              >
+              <button onClick={() => handleImageDeletion()} className="rounded bg-red-500 px-3 py-1 text-white">
                 Confirm
               </button>
             </div>
@@ -402,40 +476,28 @@ const Page = () => {
               type="text"
               placeholder="Name"
               className="mb-2 w-full rounded border bg-gray-500 p-2"
-              value={employeeData.name}
-              onChange={(e) =>
-                setEmployeeData({ ...employeeData, name: e.target.value })
-              }
+              value={employeeAddData.name}
+              onChange={(e) => setEmployeeAddData({ ...employeeAddData, name: e.target.value })}
             />
             <input
               type="email"
               placeholder="Email"
               className="mb-2 w-full rounded border bg-gray-500 p-2"
-              value={employeeData.email}
-              onChange={(e) =>
-                setEmployeeData({ ...employeeData, email: e.target.value })
-              }
+              value={employeeAddData.email}
+              onChange={(e) => setEmployeeAddData({ ...employeeAddData, email: e.target.value })}
             />
             <input
               type="tel"
               placeholder="Phone"
               className="mb-2 w-full rounded border bg-gray-500 p-2"
-              value={employeeData.phone}
-              onChange={(e) =>
-                setEmployeeData({ ...employeeData, phone: e.target.value })
-              }
+              value={employeeAddData.phone}
+              onChange={(e) => setEmployeeAddData({ ...employeeAddData, phone: e.target.value })}
             />
             <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setModalOpen(false)}
-                className="rounded bg-gray-400 px-3 py-1 text-white"
-              >
+              <button onClick={() => setModalOpen(false)} className="rounded bg-gray-400 px-3 py-1 text-white">
                 Cancel
               </button>
-              <button
-                onClick={addEmployee}
-                className="rounded bg-blue-500 px-3 py-1 text-white"
-              >
+              <button onClick={addEmployee} className="rounded bg-blue-500 px-3 py-1 text-white">
                 Confirm
               </button>
             </div>
@@ -443,7 +505,7 @@ const Page = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default Page;
+export default Page
