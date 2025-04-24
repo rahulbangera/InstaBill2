@@ -16,7 +16,7 @@ const VerifyEmail = () => {
   const email = queryParams.get("email")
   const { mutate: resendOtp } = api.user.resendEmailOtp.useMutation()
 
-  const { data: checkEmail } = api.user.checkEmailOtpPresence.useQuery({ email: email || "" }, { enabled: !!email })
+  const { data: checkEmail } = api.user.checkEmailOtpPresence.useQuery({ email: email ?? "" }, { enabled: !!email })
 
   useEffect(() => {
     if (!checkEmail) {

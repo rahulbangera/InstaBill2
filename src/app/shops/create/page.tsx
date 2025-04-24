@@ -167,7 +167,7 @@ const Page = () => {
         }
       })
       .catch((err) => {
-        toast.error(err.message || "Failed to fetch cities")
+        toast.error("Failed to fetch cities")
       })
   }
 
@@ -272,7 +272,7 @@ const Page = () => {
         setShopCity(firstDistrict)
       }
     }
-  }, [cities])
+  }, [cities, shopCity])
 
   return (
     <div className="flex h-screen items-center justify-center bg-opacity-80">
