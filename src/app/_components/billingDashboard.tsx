@@ -109,16 +109,6 @@ const BillingDashboard = ({
       return
     }
 
-    if (itemPrice <= 0) {
-      toast.error("Item price must be greater than 0")
-      return
-    }
-
-    if (itemQuantity <= 0) {
-      toast.error("Item quantity must be greater than 0")
-      return
-    }
-
     const allItems = [...billState.itemsData]
     const existingItem = allItems.find((item) => item.name === itemName)
 
