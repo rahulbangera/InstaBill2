@@ -39,12 +39,12 @@ export default function OwnerDashboard() {
 
   return (
     <>
-      <div className="flex h-screen">
+      <div className="flex h-screen overflow-hidden">
         {/* Sidebar */}
 
         {/* Main Content */}
         <div
-          className={`flex-1 overflow-auto bg-gray-900 ${collapsed ? "w-full" : "w-[calc(100%-300px)]"}`}
+          className={`flex-1 bg-gray-900 ${collapsed ? "w-full" : "w-[calc(100%-300px)]"}`}
         >
           <BillingDashboard
             setCollapsed={setCollapsed}
