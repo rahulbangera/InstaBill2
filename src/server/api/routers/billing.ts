@@ -252,4 +252,125 @@ export const billingRouter = createTRPCRouter({
 
       return bill;
     }),
+
+    createExpense: protectedProcedure
+    .input(
+      z.object({
+        shopId: z.string(),
+        amount: z.number(),
+        description: z.string(),
+        date: date(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const owner = await ctx.db.owner.findUnique({
+        where: {
+          userId: ctx.session.user.id,
+        },
+      });
+      if (!owner) {
+        throw new Error("Owner not found");
+      }
+      const shop = await ctx.db.shop.findUnique({
+        where: {
+          ownerId: owner.id,
+          id: input.shopId,
+        },
+      });
+      if (!shop) {
+        throw new Error("Shop not found");
+      }
+      return ctx.db.expense.create({
+        data: {
+          amount: input.amount,
+          description: input.description,
+          date: input.date,
+          shop: {
+            connect: {
+              id: shop.id,
+            },
+          },
+        },
+      });
+    }
+  ),
+  getExpensesForMonth: protectedProcedure
+    .input(
+      z.object({
+        shopId: z.string(),
+        month: z
+          .string()
+          .regex(
+            /^\d{4}-(0[1-9]|1[0-2])$/,
+            "Invalid month format (expected YYYY-MM)",
+          ),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const owner = await ctx.db.owner.findUnique({
+        where: {
+          userId: ctx.session.user.id,
+        },
+      });
+      if (!owner) {
+        throw new Error("Owner not found");
+      }
+      const shop = await ctx.db.shop.findUnique({
+        where: {
+          ownerId: owner.id,
+          id: input.shopId,
+        },
+      });
+      if (!shop) {
+        throw new Error("Shop not found");
+      }
+      return ctx.db.expense.findMany({
+        where: {
+          shopId: shop.id,
+          date: {
+            gte: new Date(`${input.month}-01T00:00:00.000Z`),
+            lt: new Date(
+              new Date(`${input.month}-01T00:00:00.000Z`).setMonth(
+                new Date(`${input.month}-01T00:00:00.000Z`).getMonth() + 1,
+              ),
+            ),
+          },
+        },
+      });
+    }),
+  getExpensesForDate: protectedProcedure
+    .input(
+      z.object({
+        shopId: z.string(),
+        date: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const owner = await ctx.db.owner.findUnique({
+        where: {
+          userId: ctx.session.user.id,
+        },
+      });
+      if (!owner) {
+        throw new Error("Owner not found");
+      }
+      const shop = await ctx.db.shop.findUnique({
+        where: {
+          ownerId: owner.id,
+          id: input.shopId,
+        },
+      });
+      if (!shop) {
+        throw new Error("Shop not found");
+      }
+      return ctx.db.expense.findMany({
+        where: {
+          shopId: shop.id,
+          date: {
+            gte: new Date(`${input.date}T00:00:00.000Z`),
+            lt: new Date(`${input.date}T23:59:59.999Z`),
+          },
+        },
+      });
+    }),
 });

@@ -3,7 +3,7 @@
 import React, { type SetStateAction, useEffect, useRef, useState } from "react"
 import { api } from "~/trpc/react"
 import type { Bill, Product, Shop } from "@prisma/client"
-import { Trash2Icon } from "lucide-react"
+import { Calculator, CalculatorIcon, CalendarCheck, CalendarCheck2Icon, CalendarCheckIcon, LucideCalculator, LucideCalendarCheck, LucideCalendarCheck2, Trash2Icon } from "lucide-react"
 import { Button } from "~/components/ui/button"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -52,6 +52,8 @@ const BillingDashboard = ({
   const [activeIndex, setActiveIndex] = useState<number>(-1)
   const [billDone, setBillDone] = useState<boolean>(false)
   const [shopData, setShopData] = useState<Shop | null>(null)
+
+  const [showExpenseModal, setShowExpenseModal] = useState(false)
 
   const quantityRefs = useRef<Record<string, HTMLInputElement | null>>({})
   const [noInvoice, setNoInvoice] = useState<boolean>(false)
@@ -323,10 +325,18 @@ const BillingDashboard = ({
     setBillDone(false)
   }
 
+  const handleExpenseCalculator = () => {
+    setShowExpenseModal(true);
+
+    
+  }
+
   return (
     <div className="scrollbar-hide flex h-screen w-full flex-col overflow-auto bg-gray-800 pb-4">
       <div className="flex max-h-screen w-full justify-between border-b-2 border-gray-500 bg-gray-900 p-4">
-        <div>{""}</div>
+        <div>
+          <CalculatorIcon onClick={handleExpenseCalculator} />
+        </div>
         <h1 className="text-center">{shopData ? shopData.name + " Billing" : ""}</h1>
         <div className="float-right flex items-center gap-6">
           <label className="flex items-center gap-2">
