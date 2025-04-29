@@ -22,16 +22,7 @@ const ViewInventoryAnalytics = ({ shopId }: { shopId: string }) => {
     
     return (
         <div>
-        <h2>Inventory Analytics</h2>
-        {/* Render your inventory analytics chart here */}
-        {/* Example using dummy data */}
-        <ul>
-            {inventoryData1.map((data) => (
-            <li key={data.date}>
-                Date: {data.date}, Inventory: {data.inventory}
-            </li>
-            ))}
-        </ul>
+       <h2 className="text-center">Coming Soon</h2>
         </div>
     );
     }

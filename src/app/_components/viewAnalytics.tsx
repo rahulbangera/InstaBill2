@@ -16,6 +16,7 @@ import { api } from "~/trpc/react";
 import { PaymentMethod } from "@prisma/client";
 import ViewSalesAnalytics from "./viewSalesAnalytics";
 import ViewInventoryAnalytics from "./viewInventoryAnalytics";
+import ViewOverallAnalytics from "./viewOverallAnalytics";
 
 const ViewAnalytics = ({ shopId }: { shopId: string }) => {
   interface SalesData {
@@ -140,7 +141,7 @@ const ViewAnalytics = ({ shopId }: { shopId: string }) => {
             shopId={shopId}
           />
         )}
-        {activeTab === "Overall" && <ViewSalesAnalytics shopId={shopId} />}
+        {activeTab === "Overall" && <ViewOverallAnalytics shopId={shopId} />}
       </div>
       </div>
       </div>

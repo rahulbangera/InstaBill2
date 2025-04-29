@@ -1,177 +1,179 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-    // Further reading:
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-    OWNER
-    EMPLOYEE
-    MANAGER
-}
-
-enum PaymentMethod {
-    CASH
-    UPI
-    CARD
-}
-
-// Necessary for Next auth
 model Account {
-    id                       String  @id @default(cuid())
-    userId                   String
-    type                     String
-    provider                 String
-    providerAccountId        String
-    refresh_token            String? // @db.Text
-    access_token             String? // @db.Text
-    expires_at               Int?
-    token_type               String?
-    scope                    String?
-    id_token                 String? // @db.Text
-    session_state            String?
-    user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    refresh_token_expires_in Int?
+  id                       String  @id @default(cuid())
+  userId                   String
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String?
+  access_token             String?
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String?
+  session_state            String?
+  refresh_token_expires_in Int?
+  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([provider, providerAccountId])
+  @@unique([provider, providerAccountId])
 }
 
 model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+  identifier String
+  token      String   @unique
+  expires    DateTime
 
-    @@unique([identifier, token])
+  @@unique([identifier, token])
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String
-    role          UserRole  @default(OWNER)
-    email         String    @unique
-    password      String
-    emailVerified DateTime?
-    image         String?   @db.Text
-    accounts      Account[]
-    sessions      Session[]
-    otp           String?
-    verified      Boolean   @default(false)
-    temporaryPass Boolean   @default(false)
-    owner         Owner?
-    employee      Employee?
-    createdAt     DateTime  @default(now())
+  id            String    @id @default(cuid())
+  name          String
+  role          UserRole  @default(OWNER)
+  email         String    @unique
+  password      String
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  otp           String?
+  verified      Boolean?  @default(false)
+  temporaryPass Boolean?  @default(false)
+  accounts      Account[]
+  employee      Employee?
+  owner         Owner?
+  sessions      Session[]
 }
 
 model Analysis {
-    id         Int @id @default(1)
-    lastShopId Int
+  id         Int @id @default(1)
+  lastShopId Int
 }
 
 model Owner {
-    id        String   @id @default(cuid())
-    userId    String   @unique
-    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    shops     Shop[]
-    createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shops     Shop[]
 }
 
 model Employee {
-    id        String   @id @default(cuid())
-    userId    String   @unique
-    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    shopId    String
-    shop      Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
-    Bill      Bill[]
-    createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  shopId    String
+  createdAt DateTime @default(now())
+  Bill      Bill[]
+  shop      Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Shop {
-    id                String       @id @default(cuid())
-    shopId            String?      @unique
-    productCodeFormat String?      @unique
-    lastproductNo     Int?         @unique
-    name              String
-    address           String
-    phone             String
-    email             String
-    shopImage         String       @default("https://www.google.com/url?sa=i&url=https%3A%2F%2Fcwdaust.com.au%2Fcommercial%2Flot-5883-manganese-st-wedgefield%2Fplaceholder-store%2F&psig=AOvVaw3DrrT4yfF4HG22qs5AufhE&ust=1742104796919000&source=images&opi=89978449") @db.Text
-    ownerId           String
-    owner             Owner        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-    employees         Employee[]
-    products          Product[]
-    bills             Bill[]
-    dailySales        DailySales[]
-    createdAt         DateTime     @default(now())
+  id                String       @id @default(cuid())
+  shopId            String?      @unique
+  productCodeFormat String?      @unique
+  lastproductNo     Int?         @unique
+  name              String
+  address           String
+  phone             String
+  email             String
+  shopImage         String       @default("https://www.google.com/url?sa=i&url=https%3A%2F%2Fcwdaust.com.au%2Fcommercial%2Flot-5883-manganese-st-wedgefield%2Fplaceholder-store%2F&psig=AOvVaw3DrrT4yfF4HG22qs5AufhE&ust=1742104796919000&source=images&opi=89978449")
+  ownerId           String
+  createdAt         DateTime     @default(now())
+  bills             Bill[]
+  dailySales        DailySales[]
+  employees         Employee[]
+  Expense           Expense[]
+  products          Product[]
+  owner             Owner        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 }
 
 model Product {
-    id          String     @id @default(cuid())
-    productCode String?    @unique
-    name        String
-    image       String?    @db.Text
-    price       Float
-    shopId      String
-    shortcut    Int
-    shop        Shop       @relation(fields: [shopId], references: [id], onDelete: Cascade)
-    billItem    BillItem[]
-    createdAt   DateTime   @default(now())
+  id          String     @id @default(cuid())
+  productCode String?    @unique
+  name        String
+  image       String?
+  price       Float
+  shopId      String
+  shortcut    Int
+  createdAt   DateTime   @default(now())
+  billItem    BillItem[]
+  shop        Shop       @relation(fields: [shopId], references: [id], onDelete: Cascade)
 }
 
 model Bill {
-    id            String        @id @default(cuid())
-    shopId        String
-    shop          Shop          @relation(fields: [shopId], references: [id])
-    items         BillItem[]
-    customerName  String?
-    customerPhone String?
-    total         Float
-    paymentMethod PaymentMethod
-    discount      Float         @default(0)
-    employeeId    String
-    employee      Employee      @relation(fields: [employeeId], references: [id])
-    createdAt     DateTime      @default(now())
-    dailySales    DailySales?   @relation(fields: [dailySalesId], references: [id])
-    dailySalesId  String?
+  id            String        @id @default(cuid())
+  shopId        String
+  customerName  String?
+  customerPhone String?
+  total         Float
+  paymentMethod PaymentMethod
+  discount      Float         @default(0)
+  employeeId    String
+  createdAt     DateTime      @default(now())
+  dailySalesId  String?
+  dailySales    DailySales?   @relation(fields: [dailySalesId], references: [id])
+  employee      Employee      @relation(fields: [employeeId], references: [id])
+  shop          Shop          @relation(fields: [shopId], references: [id])
+  items         BillItem[]
 }
 
 model BillItem {
-    id        String   @id @default(cuid())
-    billId    String
-    bill      Bill     @relation(fields: [billId], references: [id], onDelete: Cascade)
-    productId String?
-    product   Product? @relation(fields: [productId], references: [id])
-    name      String
-    quantity  Int
-    price     Float
-    createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  billId    String
+  productId String?
+  name      String
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
+  bill      Bill     @relation(fields: [billId], references: [id], onDelete: Cascade)
+  product   Product? @relation(fields: [productId], references: [id])
 }
 
 model DailySales {
-    id         String   @id @default(cuid())
-    shopId     String
-    shop       Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
-    date       DateTime
-    bills      Bill[]
-    totalSales Float
-    totalBills Int
-    totalItems Int
-    createdAt  DateTime @default(now())
+  id         String   @id @default(cuid())
+  shopId     String
+  date       DateTime
+  totalSales Float
+  totalBills Int
+  totalItems Int
+  createdAt  DateTime @default(now())
+  bills      Bill[]
+  shop       Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  shopId      String
+  amount      Float
+  description String?
+  createdAt   DateTime @default(now())
+  shop        Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+}
+
+enum UserRole {
+  OWNER
+  EMPLOYEE
+  MANAGER
+}
+
+enum PaymentMethod {
+  CASH
+  UPI
+  CARD
 }

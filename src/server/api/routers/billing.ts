@@ -259,21 +259,11 @@ export const billingRouter = createTRPCRouter({
         shopId: z.string(),
         amount: z.number(),
         description: z.string(),
-        date: date(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const owner = await ctx.db.owner.findUnique({
-        where: {
-          userId: ctx.session.user.id,
-        },
-      });
-      if (!owner) {
-        throw new Error("Owner not found");
-      }
       const shop = await ctx.db.shop.findUnique({
         where: {
-          ownerId: owner.id,
           id: input.shopId,
         },
       });
@@ -284,7 +274,6 @@ export const billingRouter = createTRPCRouter({
         data: {
           amount: input.amount,
           description: input.description,
-          date: input.date,
           shop: {
             connect: {
               id: shop.id,
@@ -307,17 +296,8 @@ export const billingRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const owner = await ctx.db.owner.findUnique({
-        where: {
-          userId: ctx.session.user.id,
-        },
-      });
-      if (!owner) {
-        throw new Error("Owner not found");
-      }
       const shop = await ctx.db.shop.findUnique({
         where: {
-          ownerId: owner.id,
           id: input.shopId,
         },
       });
@@ -327,7 +307,7 @@ export const billingRouter = createTRPCRouter({
       return ctx.db.expense.findMany({
         where: {
           shopId: shop.id,
-          date: {
+          createdAt: {
             gte: new Date(`${input.month}-01T00:00:00.000Z`),
             lt: new Date(
               new Date(`${input.month}-01T00:00:00.000Z`).setMonth(
@@ -346,17 +326,8 @@ export const billingRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const owner = await ctx.db.owner.findUnique({
-        where: {
-          userId: ctx.session.user.id,
-        },
-      });
-      if (!owner) {
-        throw new Error("Owner not found");
-      }
       const shop = await ctx.db.shop.findUnique({
         where: {
-          ownerId: owner.id,
           id: input.shopId,
         },
       });
@@ -366,7 +337,7 @@ export const billingRouter = createTRPCRouter({
       return ctx.db.expense.findMany({
         where: {
           shopId: shop.id,
-          date: {
+          createdAt: {
             gte: new Date(`${input.date}T00:00:00.000Z`),
             lt: new Date(`${input.date}T23:59:59.999Z`),
           },

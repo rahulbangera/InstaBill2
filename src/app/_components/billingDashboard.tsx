@@ -53,6 +53,17 @@ const BillingDashboard = ({
   const [billDone, setBillDone] = useState<boolean>(false)
   const [shopData, setShopData] = useState<Shop | null>(null)
 
+  const {data: expensesData, refetch: refetchExpenses} = api.billing.getExpensesForDate.useQuery({
+    shopId: shopData?.id ?? "", date: new Date().toISOString().split("T")[0] ?? ""
+  }, {
+    enabled: !!shopData?.id,
+  });
+
+  const [expenseDescription, setExpenseDescription] = useState<string>("")
+  const [expenseAmount, setExpenseAmount] = useState<number>(0)
+
+  const {mutate: createExpense} = api.billing.createExpense.useMutation();
+
   const [showExpenseModal, setShowExpenseModal] = useState(false)
 
   const quantityRefs = useRef<Record<string, HTMLInputElement | null>>({})
@@ -326,9 +337,40 @@ const BillingDashboard = ({
   }
 
   const handleExpenseCalculator = () => {
-    setShowExpenseModal(true);
+    setShowExpenseModal(true);    
+  }
 
-    
+  const handleCloseExpenseModal = () => {
+    setShowExpenseModal(false);
+  };
+
+  const handleCreateExpense = () => {
+    if (shopData?.id){
+      if( !expenseDescription || expenseAmount <= 0) {
+        toast.error("Please enter a valid expense description and amount");
+        return;
+      }
+      toast.loading("Creating Expense")
+      createExpense({
+        shopId: shopData.id,
+        amount: expenseAmount,
+        description: expenseDescription,
+      }, {
+        onSuccess: () => {
+          setExpenseDescription("");
+          setExpenseAmount(0);
+          toast.dismiss();
+          toast.success("Expense added successfully");
+          void refetchExpenses();
+        },
+        onError: (error) => {
+          toast.error(error.message || "Failed to add expense");
+        },
+      });
+    }
+    else {
+      toast.error("Error fetching, Shop not found")
+    }
   }
 
   return (
@@ -477,7 +519,8 @@ const BillingDashboard = ({
                               inputRef.current?.focus()
                             }
                           }}
-                          value={item.quantity || 0}
+                          value={item.quantity || ""}
+                          min={0}
                           onChange={(e) => handleQuantityChange(e, index)}
                           className={`block h-full w-full px-4 py-4 text-center outline-none ${
                             item.quantity > 0
@@ -489,7 +532,7 @@ const BillingDashboard = ({
                       <td className="relative w-1/5 border-gray-500 p-0 focus:border-b-[1px]">
                         <input
                           type="text"
-                          value={`${item.price}`}
+                          value={item.price || ""}
                           name="price"
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
@@ -497,6 +540,7 @@ const BillingDashboard = ({
                               inputRef.current?.focus()
                             }
                           }}
+                          min={0}
                           onChange={(e) => handlePriceChange(e, index)}
                           className={`block h-full w-full px-4 py-4 text-center outline-none ${
                             item.price !== 0
@@ -591,8 +635,81 @@ const BillingDashboard = ({
           </div>
         </div>
       )}
+      {showExpenseModal && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm " onClick={handleCloseExpenseModal}>
+    <div className="flex w-full max-w-5xl rounded-xl bg-gray-900 p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+      <div className="w-2/3 pr-6 border-r border-gray-700 flex flex-col justify-around min-h-[50vh]">
+       <div>
+       <h2 className="mb-4 text-2xl font-semibold text-white">
+          Expense Tracker - {new Date().toLocaleDateString()}
+        </h2>
+
+        <form className="space-y-4 h-full flex flex-col">
+          <input
+            type="text"
+            placeholder="Expense Description"
+            onChange={(e) => setExpenseDescription(e.target.value)}
+            value={expenseDescription}
+            className="w-full max-h-[60px] flex-grow rounded-md bg-gray-700 p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="number"
+            placeholder="Amount"
+            onChange={(e) => setExpenseAmount(Number(e.target.value))}
+            value={expenseAmount || ""}
+            min={0}
+            className="w-full max-h-[60px]  flex-grow rounded-md bg-gray-700 p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </form>
+
+       </div>
+
+          <div className="flex justify-end gap-3 pt-4 self-end">
+            <button
+              type="button"
+              onClick={() => setShowExpenseModal(false)}
+              className="rounded-lg bg-gray-600 px-4 py-2 text-white hover:bg-gray-500"
+            >
+              Close
+            </button>
+            <button
+              type="button"
+              onClick={()=> handleCreateExpense()}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-500"
+            >
+              Add Expense
+            </button>
+          </div>
+      </div>
+
+      <div className="w-1/3 pl-6 max-h-[50vh] overflow-y-auto " style={{scrollbarGutter: "stable", scrollbarWidth: "thin"}}>
+        <h3 className="mb-3 text-xl font-semibold text-white">Your Expenses</h3>
+        <div className="space-y-3">
+            {expensesData
+            ?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+            .map((expense, idx) => (
+              <div
+              key={idx}
+              className="rounded-lg bg-gray-800 p-3 text-white shadow-sm"
+              >
+              <div className="flex justify-between items-center">
+                <span className="font-medium">{expense.description}</span>
+                <span className="text-green-400">₹{expense.amount}</span>
+              </div>
+              <div className="text-sm text-gray-400">
+                {new Date(expense.createdAt).toLocaleDateString()} {new Date(expense.createdAt).toLocaleTimeString()}
+              </div>
+              </div>
+            ))}
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+
     </div>
   )
 }
 
-export default BillingDashboard
+export default BillingDashboard;

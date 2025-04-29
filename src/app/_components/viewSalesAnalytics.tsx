@@ -80,7 +80,7 @@ const {data: billData, refetch: fetchBillData} = api.billing.getBillById.useQuer
 
     useEffect(() => {
         if (billId !== "") {
-            fetchBillData();
+            void fetchBillData();
         }
     }
     , [billId]);
@@ -153,14 +153,15 @@ const {data: billData, refetch: fetchBillData} = api.billing.getBillById.useQuer
               onChange={(e) => setSelectedMonth(e.target.value)}
               className="mb-2 rounded border border-gray-600 bg-gray-800 p-2 text-gray-200"
             >
-              {Array.from({ length: 12 }).map((_, i) => {
-                const month = format(new Date().setMonth(i), "yyyy-MM");
+                {Array.from({ length: 12 }).map((_, i) => {
+                const monthDate = new Date(new Date().getFullYear(), i, 1);
+                const month = format(monthDate, "yyyy-MM");
                 return (
                   <option key={month} value={month}>
-                    {month}
+                  {format(monthDate, "MMMM yyyy")}
                   </option>
                 );
-              })}
+                })}
             </select>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart
