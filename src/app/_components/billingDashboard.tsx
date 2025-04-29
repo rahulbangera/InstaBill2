@@ -312,7 +312,6 @@ const BillingDashboard = ({
             if (!noInvoice) {
               setPrintModal(true)
             } else {
-              toast.success("Bill created successfully")
               clearItems()
             }
           },
