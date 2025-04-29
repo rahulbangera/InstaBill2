@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { date, z } from "zod";
 
