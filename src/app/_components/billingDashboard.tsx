@@ -8,6 +8,7 @@ import { Button } from "~/components/ui/button"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { PaymentMethod } from "@prisma/client"
+import { type Expense } from "@prisma/client"
 
 interface Item {
   name: string
@@ -53,11 +54,19 @@ const BillingDashboard = ({
   const [billDone, setBillDone] = useState<boolean>(false)
   const [shopData, setShopData] = useState<Shop | null>(null)
 
-  const {data: expensesData, refetch: refetchExpenses} = api.billing.getExpensesForDate.useQuery({
+  const [expenseData, setExpenseData] = useState<Expense[]>([])
+
+  const {data: expenses, refetch: refetchExpenses} = api.billing.getExpensesForDate.useQuery({
     shopId: shopData?.id ?? "", date: new Date().toISOString().split("T")[0] ?? ""
   }, {
     enabled: !!shopData?.id,
   });
+
+  useEffect(() => {
+    if (expenses) {
+      setExpenseData(expenses)
+    }
+  }, [expenses]);
 
   const [expenseDescription, setExpenseDescription] = useState<string>("")
   const [expenseAmount, setExpenseAmount] = useState<number>(0)
@@ -685,7 +694,7 @@ const BillingDashboard = ({
       <div className="w-1/3 pl-6 max-h-[50vh] overflow-y-auto " style={{scrollbarGutter: "stable", scrollbarWidth: "thin"}}>
         <h3 className="mb-3 text-xl font-semibold text-white">Your Expenses</h3>
         <div className="space-y-3">
-            {expensesData
+            {expenseData
             ?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
             .map((expense, idx) => (
               <div
