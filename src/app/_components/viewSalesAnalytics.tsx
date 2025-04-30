@@ -88,8 +88,6 @@ const {data: billData, refetch: fetchBillData} = api.billing.getBillById.useQuer
     const handleViewBill = (billId: string) => {    
         setBillId(billId);
         setShowBillModal(true);
-        console.log("View Bill ID:", billId);
-        // You can navigate to a bill details page or show a modal with bill details
         }
 
   useEffect(() => {
@@ -259,7 +257,7 @@ const {data: billData, refetch: fetchBillData} = api.billing.getBillById.useQuer
             </div>
             {showBillModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="flex h-fit w-1/4 flex-col items-end rounded-lg bg-gray-700 p-5">
+          <div className="flex h-fit w-fit flex-col items-end rounded-lg bg-gray-700 p-5">
             <div className="w-full text-left">
               {" "}
               <h2 className="mb-4 text-xl">Bill Details</h2>

@@ -85,7 +85,7 @@ export default function MultiTableBillingSidebar({
 
   return (
     <div
-      className={`z-[9999] h-screen border-l border-gray-700 bg-gray-800 shadow-lg transition-all duration-300 ${
+      className={`z-[9800] h-screen border-l border-gray-700 bg-gray-800 shadow-lg transition-all duration-300 ${
         collapsed ? "w-[240px]" : "w-0"
       }`}
     >

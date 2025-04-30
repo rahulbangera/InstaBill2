@@ -306,7 +306,7 @@ const BillingDashboard = ({
         {
           onSuccess: (bill: Bill) => {
             toast.dismiss()
-            toast.success("Bill created successfully")
+            toast.success("Bill created successfully", {duration: 2000})
             setBillId(bill.id)
             setBillDone(true)
             if (!noInvoice) {
@@ -351,6 +351,10 @@ const BillingDashboard = ({
   const handleCloseExpenseModal = () => {
     setShowExpenseModal(false);
   };
+
+  useEffect(()=>{
+    console.log("Expense Data", expenseData)
+  }, [expenseData]);
 
   const handleCreateExpense = () => {
     if (shopData?.id){
@@ -644,7 +648,7 @@ const BillingDashboard = ({
         </div>
       )}
       {showExpenseModal && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm " onClick={handleCloseExpenseModal}>
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm " onClick={handleCloseExpenseModal}>
     <div className="flex w-full max-w-5xl rounded-xl bg-gray-900 p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
       <div className="w-2/3 pr-6 border-r border-gray-700 flex flex-col justify-around min-h-[50vh]">
        <div>

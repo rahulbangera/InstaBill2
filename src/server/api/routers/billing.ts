@@ -335,12 +335,22 @@ export const billingRouter = createTRPCRouter({
       if (!shop) {
         throw new Error("Shop not found");
       }
+      const date = new Date(input.date);
+    const start = new Date(date);
+    start.setDate(start.getDate() - 1);
+start.setUTCHours(18, 30, 0, 0); 
+const end = new Date(start);
+end.setUTCHours(end.getUTCHours() + 23, end.getUTCMinutes() + 59, 59, 999);
+
+console.log("Start Date:", start);
+console.log("End Date:", end);
+
       return ctx.db.expense.findMany({
         where: {
           shopId: shop.id,
           createdAt: {
-            gte: new Date(`${input.date}T00:00:00.000Z`),
-            lt: new Date(`${input.date}T23:59:59.999Z`),
+            gte: start,
+            lt: end,
           },
         },
       });
