@@ -57,7 +57,7 @@ const BillingDashboard = ({
   const [expenseData, setExpenseData] = useState<Expense[]>([])
 
   const {data: expenses, refetch: refetchExpenses} = api.billing.getExpensesForDate.useQuery({
-    shopId: shopData?.id ?? "", date: new Date().toISOString().split("T")[0] ?? ""
+    shopId: shopData?.id ?? ""
   }, {
     enabled: !!shopData?.id,
   });
@@ -72,6 +72,7 @@ const BillingDashboard = ({
   const [expenseAmount, setExpenseAmount] = useState<number>(0)
 
   const {mutate: createExpense} = api.billing.createExpense.useMutation();
+  const {mutate: deleteExpense} = api.billing.deleteExpense.useMutation();
 
   const [showExpenseModal, setShowExpenseModal] = useState(false)
 
@@ -385,6 +386,18 @@ const BillingDashboard = ({
     }
   }
 
+  const handleDeleteExpense = (expenseId: string) => {
+    deleteExpense(expenseId, {
+      onSuccess: () => {
+        toast.success("Expense deleted successfully");
+        void refetchExpenses();
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to delete expense");
+      },
+    });
+  };
+
   return (
     <div className="scrollbar-hide flex h-screen w-full flex-col overflow-auto bg-gray-800 pb-4">
       <div className="flex max-h-screen w-full justify-between border-b-2 border-gray-500 bg-gray-900 p-4">
@@ -446,6 +459,7 @@ const BillingDashboard = ({
             ref={inputRef}
             className="h-10 w-full rounded-lg bg-gray-300 p-4 text-black outline-none"
             type="text"
+            autoComplete="off"
             onChange={(e) => setBillState({ inputItem: e.target.value })}
             onKeyDown={handleKeyDown}
             placeholder="Type Item Name"
@@ -514,6 +528,7 @@ const BillingDashboard = ({
                           type="text"
                           name="name"
                           value={item.name}
+                          autoComplete="off"
                           onChange={(e) => handleNameChange(e, index)}
                           className="block h-full w-full bg-transparent px-4 py-4 pl-14 text-center outline-none hover:bg-gray-800 focus:bg-gray-800"
                         />
@@ -531,6 +546,7 @@ const BillingDashboard = ({
                               inputRef.current?.focus()
                             }
                           }}
+                          autoComplete="off"
                           value={item.quantity || ""}
                           min={0}
                           onChange={(e) => handleQuantityChange(e, index)}
@@ -553,6 +569,7 @@ const BillingDashboard = ({
                             }
                           }}
                           min={0}
+                          autoComplete="off"
                           onChange={(e) => handlePriceChange(e, index)}
                           className={`block h-full w-full px-4 py-4 text-center outline-none ${
                             item.price !== 0
@@ -653,7 +670,7 @@ const BillingDashboard = ({
       <div className="w-2/3 pr-6 border-r border-gray-700 flex flex-col justify-around min-h-[50vh]">
        <div>
        <h2 className="mb-4 text-2xl font-semibold text-white">
-          Expense Tracker - {new Date().toLocaleDateString()}
+          Expense Tracker - {new Date().toLocaleDateString()} Total - ₹{expenseData.reduce((acc, expense) => acc + expense.amount, 0)}
         </h2>
 
         <form className="space-y-4 h-full flex flex-col">
@@ -708,8 +725,17 @@ const BillingDashboard = ({
                 <span className="font-medium">{expense.description}</span>
                 <span className="text-green-400">₹{expense.amount}</span>
               </div>
-              <div className="text-sm text-gray-400">
+              <div className="text-sm text-gray-400 flex justify-between items-center">
                 {new Date(expense.createdAt).toLocaleDateString()} {new Date(expense.createdAt).toLocaleTimeString()}
+                <Trash2Icon
+                  className="cursor-pointer text-red-500 scale-75"
+                  onClick={() => {
+                    const confirmDelete = window.confirm("Are you sure you want to delete this expense?")
+                    if (confirmDelete) {
+                      handleDeleteExpense(expense.id)
+                    }
+                  }}
+                />
               </div>
               </div>
             ))}

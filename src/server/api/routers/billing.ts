@@ -284,6 +284,23 @@ export const billingRouter = createTRPCRouter({
       });
     }
   ),
+  deleteExpense: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      const expense = await ctx.db.expense.findUnique({
+        where: {
+          id: input,
+        },
+      });
+      if (!expense) {
+        throw new Error("Expense not found");
+      }
+      return ctx.db.expense.delete({
+        where: {
+          id: input,
+        },
+      });
+    }),
   getExpensesForMonth: protectedProcedure
     .input(
       z.object({
@@ -323,7 +340,6 @@ export const billingRouter = createTRPCRouter({
     .input(
       z.object({
         shopId: z.string(),
-        date: z.string(),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -335,16 +351,20 @@ export const billingRouter = createTRPCRouter({
       if (!shop) {
         throw new Error("Shop not found");
       }
-      const date = new Date(input.date);
+      const currentDate = new Date();
+      if (
+        currentDate.getUTCHours() > 19 ||
+        (currentDate.getUTCHours() === 18 && currentDate.getUTCMinutes() >= 30)
+      ) {
+        currentDate.setUTCDate(currentDate.getUTCDate() + 1);
+      }
+      const formattedDate = currentDate.toISOString().split("T")[0] ?? "";
+      const date = new Date(formattedDate);
     const start = new Date(date);
     start.setDate(start.getDate() - 1);
 start.setUTCHours(18, 30, 0, 0); 
 const end = new Date(start);
 end.setUTCHours(end.getUTCHours() + 23, end.getUTCMinutes() + 59, 59, 999);
-
-console.log("Start Date:", start);
-console.log("End Date:", end);
-
       return ctx.db.expense.findMany({
         where: {
           shopId: shop.id,
