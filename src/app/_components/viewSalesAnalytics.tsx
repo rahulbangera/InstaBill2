@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import {useMediaQuery} from "react-responsive"
+
+
 import {
   LineChart,
   Line,
@@ -17,6 +20,9 @@ import { PaymentMethod } from "@prisma/client";
 import { Button } from "../components/ui/button";
 
 const ViewSalesAnalytics = ({ shopId }: { shopId: string }) => {
+
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
+
   interface SalesData {
     date: string;
     sales: number;
@@ -139,202 +145,201 @@ const {data: billData, refetch: fetchBillData} = api.billing.getBillById.useQuer
   }
 
   return (
-    <div className="space-y-8">
-      <div className="mt-6 flex w-full justify-center">
-        <Card className="w-3/4 max-w-[1200px] border border-gray-700 bg-gray-800/70 p-4">
-          <CardContent>
-            <h2 className="mb-2 text-xl font-semibold text-gray-200">
+  <div className="space-y-10 px-4 pb-16">
+    {/* --- Sales Overview Graph Section --- */}
+    <div className="mt-8 flex w-full justify-center">
+      <Card className="w-full max-w-6xl border border-gray-700 bg-gray-900/80 shadow-lg">
+        <CardContent className="p-6 md:p-8">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <h2 className="text-2xl font-bold text-gray-200">
               Sales Overview - {selectedMonth}
             </h2>
             <select
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
-              className="mb-2 rounded border border-gray-600 bg-gray-800 p-2 text-gray-200"
+              className="rounded-md border border-gray-600 bg-gray-800 p-2 text-gray-200 outline-none focus:ring-2 focus:ring-blue-500"
             >
-                {Array.from({ length: 12 }).map((_, i) => {
+              {Array.from({ length: 12 }).map((_, i) => {
                 const monthDate = new Date(new Date().getFullYear(), i, 1);
                 const month = format(monthDate, "yyyy-MM");
                 return (
                   <option key={month} value={month}>
-                  {format(monthDate, "MMMM yyyy")}
+                    {format(monthDate, "MMMM yyyy")}
                   </option>
                 );
-                })}
+              })}
             </select>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart
-                data={salesData}
-                onClick={(data) => {
-                  if (data?.activeLabel) {
-                    const selectedDay = data.activeLabel;
-                    const newDate = `${selectedMonth}-${selectedDay}`;
-                    setSelectedDate(newDate);
-                  }
-                }}
-              >
-                <XAxis dataKey="date" stroke="gray" />
-                <YAxis stroke="gray" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#1E293B",
-                    color: "#FACC15",
-                  }}
-                />
-                <Bar dataKey="sales" fill="#60A5FA" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
 
-      <div className="flex w-full justify-center">
-        <div className="flex w-full max-w-[1800px] justify-center border-none bg-gray-700/20 p-8">
-          <div>
-            <h2 className="mb-2 text-center text-xl font-semibold">
-              Day-wise Bills - {selectedDate}
-            </h2>
-            <div className="flex w-full justify-center">
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="mb-4 rounded border bg-gray-600 p-2 text-black"
-              />
-            </div>
-            {/* <ul className="">
-            {bills.map((bill) => (
-              <li key={bill.id} className="flex justify-between border-b py-2">
-                <span>{bill.paymentMethod}</span>
-                <span className="font-semibold">₹{bill.total}</span>
-              </li>
-            ))}
-          </ul> */}
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-              {bills.map((bill) => (
-                <Card
-                  key={bill.id}
-                  className="min-w-[340px] border-gray-500 bg-slate-800 p-4 text-lg"
-                >
-                  <CardContent>
-                    <h3 className="mb-1 text-lg font-semibold text-gray-200">
-                      Billing Time:{" "}
-                      <span className="text-gray-100">
-                        {bill.createdAt.toLocaleTimeString()}
-                      </span>
-                    </h3>
-                    <p className="mb-1 text-gray-300">
-                      <span className="font-medium text-blue-400">
-                        Payment Method:
-                      </span>{" "}
-                      {bill.paymentMethod}
-                    </p>
-                    <p className="mb-1 text-gray-300">
-                      <span className="font-medium text-green-400">Total:</span>{" "}
-                      ₹{bill.total}
-                    </p>
-                    <p className="mb-1 text-gray-300">
-                      <span className="font-medium text-red-400">
-                        Discount:
-                      </span>{" "}
-                      ₹{bill.discount}
-                    </p>
-                    <div className="flex justify-between items-center">
-                    <p className="mb-1 text-gray-300">
-                      <span className="font-medium text-gray-400">Date:</span>{" "}
+         <div className="mt-6 h-[300px] w-full">
+  <ResponsiveContainer width="100%" height="100%">
+    <BarChart
+      data={salesData}
+      barCategoryGap={isMobile ? 12 : 4} // wider gaps on mobile
+      barSize={isMobile ? 30 : 16}       // thicker bars on mobile
+      onClick={(data) => {
+        if (data?.activeLabel) {
+          const selectedDay = data.activeLabel;
+          const newDate = `${selectedMonth}-${selectedDay}`;
+          setSelectedDate(newDate);
+        }
+      }}
+    >
+      <XAxis dataKey="date" stroke="#ccc" />
+      <YAxis stroke="#ccc" />
+      <Tooltip
+        contentStyle={{
+          backgroundColor: "#1E293B",
+          color: "#FACC15",
+        }}
+      />
+      <Bar
+        dataKey="sales"
+        fill="#3B82F6"
+        radius={[6, 6, 0, 0]}
+        cursor="pointer"
+      />
+    </BarChart>
+  </ResponsiveContainer>
+</div>
+        </CardContent>
+      </Card>
+    </div>
+
+    <div className="flex w-full justify-center">
+      <div className="w-full max-w-7xl space-y-6 rounded-lg bg-gray-800/50 p-6 shadow-inner">
+        <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
+          <h2 className="text-2xl font-semibold text-gray-100 text-center">
+            Day-wise Bills - {selectedDate}
+          </h2>
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className="rounded-md border bg-gray-700 p-2 text-white focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {bills.map((bill) => (
+            <Card
+              key={bill.id}
+              className="border border-gray-600 bg-gray-900 p-4 shadow-md hover:shadow-lg transition-all"
+            >
+              <CardContent>
+                <div className="space-y-2 text-gray-300">
+                  <div className="text-lg font-semibold text-gray-100">
+                    Billing Time:{" "}
+                    <span className="text-blue-400">
+                      {bill.createdAt.toLocaleTimeString()}
+                    </span>
+                  </div>
+                  <p>
+                    <span className="font-medium text-blue-400">
+                      Payment Method:
+                    </span>{" "}
+                    {bill.paymentMethod}
+                  </p>
+                  <p>
+                    <span className="font-medium text-green-400">Total:</span>{" "}
+                    ₹{bill.total}
+                  </p>
+                  <p>
+                    <span className="font-medium text-red-400">Discount:</span>{" "}
+                    ₹{bill.discount}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <p>
+                      <span className="text-gray-400">Date:</span>{" "}
                       {format(new Date(bill.createdAt), "yyyy-MM-dd")}
                     </p>
                     <Button
                       variant="secondary"
-                      className="text-gray-200 bg-gray-900 hover:bg-gray-800"
-                      onClick={()=>handleViewBill(bill.id)}
+                      className="bg-gray-700 hover:bg-gray-600 text-gray-100"
+                      onClick={() => handleViewBill(bill.id)}
                     >
                       View Bill
                     </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-            {showBillModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="flex h-fit w-fit flex-col items-end rounded-lg bg-gray-700 p-5">
-            <div className="w-full text-left">
-              {" "}
-              <h2 className="mb-4 text-xl">Bill Details</h2>
-             </div>
-             {billData ? (
-                <div className="mb-4">
-                    <p className="mb-2">
-                        <span className="font-medium text-gray-300">
-                            Bill ID:
-                            </span>{" "}
-                            {billData.id}
-                    </p>
-                    <p className="mb-2">
-                        <span className="font-medium text-gray-300">
-                            Payment Method:
-                            </span>{" "}
-                            {billData.paymentMethod}
-                    </p>
-                    <p className="mb-2">
-                        <span className="font-medium text-gray-300">
-                            Total:
-                            </span>{" "}
-                            ₹{billData.total}
-                    </p>
-                    <p className="mb-2">
-                        <span className="font-medium text-gray-300">
-                            Discount:
-                            </span>{" "}
-                            ₹{billData.discount}
-                    </p>
-                    <p className="mb-2">
-                        <span className="font-medium text-gray-300">
-                            Date:
-                            </span>{" "}
-                            {format(new Date(billData.createdAt), "yyyy-MM-dd")}
-                    </p>
-                    <p className="mb-2">
-                        <span className="font-medium text-gray-300">
-                            Time:
-                            </span>{" "}
-                            {new Date(billData.createdAt).toLocaleTimeString()}
-                    </p>
-                    <div className="mb-2">
-                        <span className="font-medium text-gray-300">
-                            Items:
-                            </span>{" "}
-                            {billData.items.map((item) => (
-                                <div key={item.id} className="flex justify-between">
-                                    <span>{item.name} x {item.quantity}</span>
-                                    <span>₹{item.price}</span>
-                                </div>
-                            ))}
-                    </div>
-                   
-                    </div>
-              ): (
-                <div className="w-full text-center">
-                                    <p className="text-gray-300">Loading...</p>
-
+                  </div>
                 </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Bill Modal */}
+        {showBillModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+            <div className="w-full max-w-lg rounded-lg bg-gray-800 p-6 shadow-xl">
+              <div className="mb-4 border-b pb-2 text-xl font-semibold text-gray-100">
+                Bill Details
+              </div>
+              {billData ? (
+                <div className="space-y-2 text-gray-300">
+                  <p>
+                    <span className="font-medium text-gray-400">Bill ID:</span>{" "}
+                    {billData.id}
+                  </p>
+                  <p>
+                    <span className="font-medium text-gray-400">
+                      Payment Method:
+                    </span>{" "}
+                    {billData.paymentMethod}
+                  </p>
+                  <p>
+                    <span className="font-medium text-gray-400">Total:</span>{" "}
+                    ₹{billData.total}
+                  </p>
+                  <p>
+                    <span className="font-medium text-gray-400">
+                      Discount:
+                    </span>{" "}
+                    ₹{billData.discount}
+                  </p>
+                  <p>
+                    <span className="font-medium text-gray-400">Date:</span>{" "}
+                    {format(new Date(billData.createdAt), "yyyy-MM-dd")}
+                  </p>
+                  <p>
+                    <span className="font-medium text-gray-400">Time:</span>{" "}
+                    {new Date(billData.createdAt).toLocaleTimeString()}
+                  </p>
+                  <div>
+                    <span className="font-medium text-gray-400">Items:</span>
+                    <div className="mt-2 space-y-1 pl-2">
+                      {billData.items.map((item) => (
+                        <div
+                          key={item.id}
+                          className="flex justify-between text-sm"
+                        >
+                          <span>
+                            {item.name} x {item.quantity}
+                          </span>
+                          <span>₹{item.price}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center text-gray-300">Loading...</div>
               )}
-            <div className="flex gap-3">
-              <Button className="bg-blue-800" onClick={handlePrintBill}>
-                Print Bill
-              </Button>
-              <Button className="bg-red-700" onClick={clearItems}>
-                Close
-              </Button>
+              <div className="mt-6 flex justify-end gap-3">
+                <Button className="bg-blue-600 hover:bg-blue-500">
+                  Print Bill
+                </Button>
+                <Button className="bg-red-600 hover:bg-red-500" onClick={clearItems}>
+                  Close
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-          </div>
-        </div>
+        )}
       </div>
     </div>
-  );
+  </div>
+);
+
 };
 
 export default ViewSalesAnalytics;

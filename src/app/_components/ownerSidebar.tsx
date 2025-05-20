@@ -12,7 +12,7 @@ import { toast } from "sonner";
 
 const OwnerSidebar = () => {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const [profileModal, setProfileModal] = useState(false);
   const { data: userImage, refetch: getUserImage } =
     api.ut.getUserImage.useQuery();
@@ -50,11 +50,21 @@ const OwnerSidebar = () => {
   // By deleting employee it wont get deleted from user model
 
   return (
-    <div
-      className={`relative h-full overflow-hidden ${
-        collapsed ? "w-[80px]" : "w-[240px]"
-      } z-[9999] flex-shrink-0 bg-gray-800 transition-all duration-300 ease-in-out`}
-    >
+    <>
+   {collapsed && (
+     <button
+  onClick={() => setCollapsed(false)}
+  className="md:hidden fixed z-[10000] bg-gray-800 p-2 shadow-lg"
+>
+  <ChevronRightIcon className="h-6 w-6 text-white" />
+</button>
+   )}
+ <div
+  className={`fixed md:relative z-[9999] bg-gray-800 transition-all duration-300 ease-in-out 
+    ${collapsed ? "w-0 md:w-[80px]" : "w-full md:w-[240px]"} 
+    h-full overflow-hidden`}
+>
+
       <button
         onClick={() => setCollapsed(!collapsed)}
         className="absolute right-0 top-1/2 flex h-8 w-8 items-center justify-center bg-gray-900 shadow-lg hover:bg-gray-800"
@@ -159,6 +169,8 @@ const OwnerSidebar = () => {
         </div>
       )}
     </div>
+</>
+   
   );
 };
 

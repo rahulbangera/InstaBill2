@@ -11,7 +11,7 @@ import { useSession } from "next-auth/react";
 gsap.registerPlugin(TextPlugin);
 
 const Page = () => {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
   const textRef = useRef(null);
   const subtextRef = useRef(null);
@@ -44,28 +44,29 @@ const Page = () => {
   }, []);
 
   return (
-    <div className="mx-auto my-0 flex w-full justify-between p-4 2xl:w-[80%]">
-      <div className="ml-12 mt-40 w-full">
+    <div className="mx-auto flex w-full flex-col-reverse items-center justify-between p-4 md:flex-row md:gap-0 md:p-8 2xl:w-[80%]">
+      <div className="w-full text-center md:w-1/2 md:text-left ml-8">
         <h1
           ref={textRef}
-          className="opacity-1 min-h-[8rem] whitespace-pre text-4xl font-bold sm:text-4xl md:text-9xl 2xl:text-[7vw]"
+          className="whitespace-pre text-4xl font-bold sm:text-5xl md:text-7xl 2xl:text-[7vw] "
         >
           InstaBiller
         </h1>
         <h2
           ref={subtextRef}
-          className="opacity-1 mt-6 min-h-[4rem] w-1/2 whitespace-pre text-gray-700 sm:text-3xl md:text-5xl 2xl:w-1/2 2xl:text-[3vw]"
+          className="mt-4 min-h-[3rem] whitespace-pre text-xl text-gray-700 sm:text-2xl md:text-3xl 2xl:text-[3vw]"
         >
           Tracking Businesses made Easy
         </h2>
+
         {session ? (
           <div
-            className="relative mt-8 inline-block"
+            className="relative mt-6 inline-block"
             onMouseEnter={() => setShowDropdown(true)}
             onMouseLeave={() => setShowDropdown(false)}
           >
             <Button
-              className="relative rounded-none border-none bg-gray-100 text-black"
+              className="mt-4 w-full rounded-md bg-gray-100 text-black md:w-auto"
               variant={"outline"}
               onClick={() => router.push("/dashboard")}
             >
@@ -74,40 +75,28 @@ const Page = () => {
           </div>
         ) : (
           <div
-            className="relative mt-8 inline-block"
+            className="relative mt-6 inline-block"
             onClick={() => router.push("/signin")}
           >
             <Button
-              className="relative rounded-none border-none bg-gray-100 text-black"
+              className="mt-4 w-full rounded-md bg-gray-100 text-black md:w-auto"
               variant={"outline"}
             >
               Login to your Account
               <CaretRightIcon className="ml-2" />
             </Button>
-
-            {/* {showDropdown && (
-              <div className="absolute left-0 flex w-full flex-col bg-white shadow-lg transition-opacity duration-300">
-                <Button
-                  className="rounded-none border-none bg-gray-300 text-black hover:bg-gray-400"
-                  variant={"outline"}
-                >
-                  As an Owner
-                </Button>
-                <Button
-                  className="rounded-none border-none bg-gray-300 text-black hover:bg-gray-400"
-                  variant={"outline"}
-                  onClick={() => alert("Logging in as Employee")}
-                >
-                  As an Employee
-                </Button>
-              </div>
-            )} */}
           </div>
         )}
       </div>
 
-      <div className="flex items-center brightness-75 filter">
-        <Image src={"/shop2.webp"} alt={"shop"} width={1600} height={1600} />
+      <div className="w-full md:w-1/2">
+        <Image
+          src="/shop2.webp"
+          alt="shop"
+          width={1600}
+          height={1600}
+          className="w-full h-auto object-contain rounded-xl brightness-75"
+        />
       </div>
     </div>
   );

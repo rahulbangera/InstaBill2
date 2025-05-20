@@ -104,7 +104,7 @@ const ViewAnalytics = ({ shopId }: { shopId: string }) => {
     void fetchDailySalesData();
   }, [selectedDate]);
 
-  const [activeTab, setActiveTab] = useState<string>("Employees");
+  const [activeTab, setActiveTab] = useState<string>("Sales");
   const tabs = [
     { name: "Sales Analytics", key: "Sales" },
     { name: "Inventory Analytics", key: "Inventory" },

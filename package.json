@@ -55,6 +55,7 @@
     "react-dom": "^18.3.1",
     "react-hot-toast": "^2.5.2",
     "react-modal": "^3.16.3",
+    "react-responsive": "^10.0.1",
     "recharts": "^2.15.1",
     "server-only": "^0.0.1",
     "sonner": "^2.0.1",
