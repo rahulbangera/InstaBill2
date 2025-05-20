@@ -14,6 +14,7 @@ export const env = createEnv({
     SMTP_SECURE: z.boolean(),
     EMAIL_USER: z.string(),
     EMAIL_PASS: z.string(),
+    PUPPETEER_EXECUTABLE_PATH: z.string().optional(),
     AUTH_SECRET:
       process.env.NODE_ENV === "production"
         ? z.string()
@@ -40,6 +41,7 @@ export const env = createEnv({
    * middlewares) or client-side so we need to destruct manually.
    */
   runtimeEnv: {
+    PUPPETEER_EXECUTABLE_PATH: process.env.PUPPETEER_EXECUTABLE_PATH,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     SMTP_SERVICE: process.env.SMTP_SERVICE,
     SMTP_HOST: process.env.SMTP_HOST,
