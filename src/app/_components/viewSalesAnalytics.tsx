@@ -14,7 +14,7 @@ import {
   Bar,
 } from "recharts";
 import { Card, CardContent } from "~/components/ui/card";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { api } from "~/trpc/react";
 import { PaymentMethod } from "@prisma/client";
 import { Button } from "../components/ui/button";
@@ -33,6 +33,7 @@ const ViewSalesAnalytics = ({ shopId }: { shopId: string }) => {
 
   const [billId, setBillId] = useState<string>("");
 
+  const [isBillLoading, setIsBillLoading] = useState(false);  
 const {data: billData, refetch: fetchBillData} = api.billing.getBillById.useQuery(billId, {enabled: !!billId});
 
   const [salesData, setSalesData] = useState<SalesData[]>([]);
@@ -135,12 +136,14 @@ const {data: billData, refetch: fetchBillData} = api.billing.getBillById.useQuer
   }, [selectedDate]);
 
   const handlePrintBill = async () => {
+    setIsBillLoading(true);
     toast.loading("Generating Bill...");
     await getInvoice.mutateAsync(shopId + "-" + billId, {
       onSuccess: (response) => {
         window.location.href = response;
         toast.dismiss();
         toast.success("Bill generated successfully!", {duration: 2000});
+        setIsBillLoading(false);
       },
       onError: (error) => {
         console.error("PDF generation failed:", error)
@@ -329,8 +332,8 @@ const {data: billData, refetch: fetchBillData} = api.billing.getBillById.useQuer
                 <div className="text-center text-gray-300">Loading...</div>
               )}
               <div className="mt-6 flex justify-end gap-3">
-                <Button className="bg-blue-600 hover:bg-blue-500" onClick={handlePrintBill}>
-                  Print Bill
+                <Button className={`${isBillLoading ? "cursor-not-allowed bg-blue-500" : "cursor-pointer bg-blue-600  hover:bg-blue-500"}`} onClick={handlePrintBill} disabled={isBillLoading}>
+                  {isBillLoading ? "Generating..." : "Generate Bill"}
                 </Button>
                 <Button className="bg-red-600 hover:bg-red-500" onClick={clearItems}>
                   Close
