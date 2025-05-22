@@ -39,7 +39,7 @@ export default function InvoiceComp({
         <div style={styles.invoiceInfo}>
           <p>Invoice No: {invoiceId}</p>
           <p>Shop ID: {invoiceData?.shop.shopId}</p>
-          <p>Date: {invoiceData?.createdAt.toLocaleDateString()}</p>
+          <p>Date: {invoiceData?.createdAt.toLocaleDateString() + "," + invoiceData?.createdAt.toLocaleTimeString()}</p>
         </div>
       </div>
 
