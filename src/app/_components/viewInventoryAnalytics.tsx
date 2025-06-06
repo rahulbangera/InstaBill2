@@ -51,17 +51,19 @@ const ViewInventoryAnalytics = ({ shopId }: { shopId: string }) => {
 
   useEffect(() => {
      if (inventoryAnalytics && Array.isArray(inventoryAnalytics)) {
-        console.log("Inventory Analytics:", inventoryAnalytics);
         const aggregated: Record<string, { name: string; quantity: number; price: number; }> = {};
         inventoryAnalytics.forEach((item: BillItem) => {
+            console.log("Processing item:", item);
             if (!aggregated[item.name]) {
                 aggregated[item.name] = { ...item };
             } else if (aggregated[item.name]) {
                 aggregated[item.name]!.quantity += item.quantity;
-                aggregated[item.name]!.price += item.price;
             }
         });
         const sortedAggregated = Object.values(aggregated).sort((a, b) => b.quantity - a.quantity);
+        sortedAggregated.forEach(item => {
+            item.price = item.quantity * item.price;
+        });
         setBillItems(sortedAggregated);
     }
     console.log("Bill Items:", billItems);
