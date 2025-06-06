@@ -375,4 +375,51 @@ end.setUTCHours(end.getUTCHours() + 23, end.getUTCMinutes() + 59, 59, 999);
         },
       });
     }),
+  
+    getBillItemsForDate: protectedProcedure
+    .input(
+      z.object({
+        shopId: z.string(),
+        date: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const shop = await ctx.db.shop.findUnique({
+        where: {
+          id: input.shopId,
+        },
+      });
+      if (!shop) {
+        throw new Error("Shop not found");
+      }
+       const currentDate = new Date(input.date);
+      if (
+        currentDate.getUTCHours() > 19 ||
+        (currentDate.getUTCHours() === 18 && currentDate.getUTCMinutes() >= 30)
+      ) {
+        currentDate.setUTCDate(currentDate.getUTCDate() + 1);
+      }
+      const formattedDate = currentDate.toISOString().split("T")[0] ?? "";
+      const date = new Date(formattedDate);
+    const start = new Date(date);
+    start.setDate(start.getDate() - 1);
+start.setUTCHours(18, 30, 0, 0); 
+const end = new Date(start);
+end.setUTCHours(end.getUTCHours() + 23, end.getUTCMinutes() + 59, 59, 999);
+      return ctx.db.billItem.findMany({
+        where: {
+          bill: {
+            shopId: shop.id,
+            createdAt: {
+              gte: new Date(`${input.date}T00:00:00.000Z`),
+              lt: new Date(`${input.date}T23:59:59.999Z`),
+            },
+          },
+        },
+        include: {
+          product: true,
+        },
+      });
+    }
+  ),
 });

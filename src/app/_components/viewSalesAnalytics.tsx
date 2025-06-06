@@ -152,9 +152,9 @@ const {data: billData, refetch: fetchBillData} = api.billing.getBillById.useQuer
   }
 
   return (
-  <div className="space-y-10 px-4 pb-16">
+  <div className="space-y-10">
     {/* --- Sales Overview Graph Section --- */}
-    <div className="mt-8 flex w-full justify-center">
+    <div className="flex w-full justify-center">
       <Card className="w-full max-w-6xl border border-gray-700 bg-gray-900/80 shadow-lg">
         <CardContent className="p-6 md:p-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -179,7 +179,7 @@ const {data: billData, refetch: fetchBillData} = api.billing.getBillById.useQuer
           </div>
 
          <div className="mt-6 h-[300px] w-full">
-  <ResponsiveContainer width="100%" height="100%">
+  <ResponsiveContainer width="100%" height="100%" className={"-translate-x-3 lg:-translate-x-0"}>
     <BarChart
       data={salesData}
       barCategoryGap={isMobile ? 12 : 4} // wider gaps on mobile

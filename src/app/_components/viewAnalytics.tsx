@@ -114,8 +114,8 @@ const ViewAnalytics = ({ shopId }: { shopId: string }) => {
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   return (
-    <div className="space-y-8">
-      <div className="mt-6 flex w-full justify-center">
+    <div className="space-y-8 w-full px-4">
+      <div className="mt-6 block w-full justify-center">
         <div className="flex space-x-4 flex-col">
         <nav className="flex justify-center p-2 text-white">
         {tabs.map((tab) => (
@@ -134,7 +134,7 @@ const ViewAnalytics = ({ shopId }: { shopId: string }) => {
         ))}
       </nav>
 
-      <div className="flex-grow">
+      <div className="flex-grow lg:px-4 my-4 lg:pb-16" style={{marginLeft: "0px"}}>
         {activeTab === "Sales" && <ViewSalesAnalytics shopId={shopId} />}
         {activeTab === "Inventory" && (
           <ViewInventoryAnalytics
