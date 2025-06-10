@@ -56,14 +56,13 @@ const ViewInventoryAnalytics = ({ shopId }: { shopId: string }) => {
             console.log("Processing item:", item);
             if (!aggregated[item.name]) {
                 aggregated[item.name] = { ...item };
+                aggregated[item.name]!.price = item.price * item.quantity;
             } else if (aggregated[item.name]) {
                 aggregated[item.name]!.quantity += item.quantity;
+                aggregated[item.name]!.price += item.price * item.quantity;
             }
         });
         const sortedAggregated = Object.values(aggregated).sort((a, b) => b.quantity - a.quantity);
-        sortedAggregated.forEach(item => {
-            item.price = item.quantity * item.price;
-        });
         setBillItems(sortedAggregated);
     }
     console.log("Bill Items:", billItems);

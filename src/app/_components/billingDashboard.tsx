@@ -300,7 +300,7 @@ const BillingDashboard = ({
               price: item.price,
               quantity: item.quantity,
               productId:
-                products.find((product) => product.name === item.name && product.price === item.price)?.id ?? undefined,
+                products.find((product) => product.name === item.name)?.id ?? undefined,
             }
           }),
         },
