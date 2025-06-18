@@ -27,7 +27,7 @@ const Navbar: React.FC<NavbarProps> = ({ isDark, setDark }) => {
         </Link>
       </div>
       <div className="flex w-1/3 items-center justify-end gap-2 px-8">
-        <MoonIcon className="scale-125 text-black" />
+        {/* <MoonIcon className="scale-125 text-black" />
         <Switch
           style={{
             backgroundColor: "black",
@@ -41,7 +41,7 @@ const Navbar: React.FC<NavbarProps> = ({ isDark, setDark }) => {
           checked={false}
           // onCheckedChange={() => setDark((prev) => !prev)}
         />
-        <SunIcon className="scale-125 text-black" />
+        <SunIcon className="scale-125 text-black" /> */}
         {session2 ? (
           <Button variant={"default"} onClick={() => signOut()}>
             Log Out

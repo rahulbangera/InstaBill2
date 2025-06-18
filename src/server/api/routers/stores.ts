@@ -39,65 +39,64 @@ export const storesRouter = createTRPCRouter({
   createStore: protectedProcedure
     .input(shopSchema)
     .mutation(async ({ ctx, input }) => {
-      const owner = await ctx.db.owner.findUnique({
-        where: {
-          userId: ctx.session.user.id,
-        },
-      });
-
-      if (!owner) {
-        throw new Error("Owner not found");
-      }
-
-      const lastUsedId = await ctx.db.analysis.findUnique({
-        where: {
-          id: 1,
-        },
-      });
-
-      const nextShopId = lastUsedId ? lastUsedId.lastShopId + 1 : 1;
-      const formattedShopId = nextShopId.toString().padStart(4, "0");
-
-      await ctx.db.analysis.upsert({
-        where: {
-          id: 1,
-        },
-        update: {
-          lastShopId: nextShopId,
-        },
-        create: {
-          id: 1,
-          lastShopId: nextShopId,
-        },
-      });
-
-      console.log(input.itemCodeFormat);
-
-      const existingProdCode = await ctx.db.shop.findFirst({
-        where: {
-          productCodeFormat: input.itemCodeFormat,
-        },
-      });
-
-      if (existingProdCode) {
-        throw new Error("Product code format already exists");
-      }
-
-      const shop = await ctx.db.shop.create({
-        data: {
-          name: input.name,
-          shopId: `INST-${formattedShopId}`,
-          productCodeFormat: input.itemCodeFormat,
-          lastproductNo: 0,
-          address: input.address,
-          phone: input.phone,
-          email: input.email,
-          ownerId: owner.id,
-          shopImage: input.image,
-        },
-      });
-
       try {
+        const owner = await ctx.db.owner.findUnique({
+          where: {
+            userId: ctx.session.user.id,
+          },
+        });
+
+        if (!owner) {
+          throw new Error("Owner not found");
+        }
+
+        const lastUsedId = await ctx.db.analysis.findUnique({
+          where: {
+            id: 1,
+          },
+        });
+
+        const nextShopId = lastUsedId ? lastUsedId.lastShopId + 1 : 1;
+        const formattedShopId = nextShopId.toString().padStart(4, "0");
+
+        await ctx.db.analysis.upsert({
+          where: {
+            id: 1,
+          },
+          update: {
+            lastShopId: nextShopId,
+          },
+          create: {
+            id: 1,
+            lastShopId: nextShopId,
+          },
+        });
+
+        console.log(input.itemCodeFormat);
+
+        const existingProdCode = await ctx.db.shop.findFirst({
+          where: {
+            productCodeFormat: input.itemCodeFormat,
+          },
+        });
+
+        if (existingProdCode) {
+          throw new Error("Product code format already exists");
+        }
+
+        const shop = await ctx.db.shop.create({
+          data: {
+            name: input.name,
+            shopId: `INST-${formattedShopId}`,
+            productCodeFormat: input.itemCodeFormat,
+            lastproductNo: 0,
+            address: input.address,
+            phone: input.phone,
+            email: input.email,
+            ownerId: owner.id,
+            shopImage: input.image,
+          },
+        });
         const transporter = nodemailer.createTransport({
           service: env.SMTP_SERVICE,
           host: env.SMTP_HOST,
@@ -136,7 +135,7 @@ export const storesRouter = createTRPCRouter({
           });
         }
       } catch (e) {
-        throw new Error("Error creating employee");
+        throw new Error(`Error creating store: ${e instanceof Error ? e.message : "Unknown error"}`);
       }
     }),
 

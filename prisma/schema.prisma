@@ -97,6 +97,8 @@ model Shop {
   createdAt         DateTime     @default(now())
   bills             Bill[]
   dailySales        DailySales[]
+  monthlySales      MonthlySales[]
+  monthlyExpenses   MonthlyExpenses[]
   employees         Employee[]
   Expense           Expense[]
   products          Product[]
@@ -165,6 +167,29 @@ model Expense {
   createdAt   DateTime @default(now())
   shop        Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
 }
+
+model MonthlySales {
+  id          String   @id @default(cuid())
+  shopId      String
+  year        Int
+  month       Int
+  totalSales  Float
+  totalBills  Int
+  totalItems  Int
+  createdAt   DateTime @default(now())
+  shop        Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+}
+
+model MonthlyExpenses {
+  id         String   @id @default(cuid())
+  shopId     String
+  year       Int
+  month      Int
+  total      Float
+  createdAt  DateTime @default(now())
+  shop       Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+}
+
 
 enum UserRole {
   OWNER
