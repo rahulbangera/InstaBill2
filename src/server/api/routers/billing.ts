@@ -82,12 +82,18 @@ export const billingRouter = createTRPCRouter({
 			});
 
 			if (existingDailySales) {
+				let total = 0;
+				if (billing.grandTotal && billing.grandTotal > 0) {
+					total = billing.grandTotal;
+				} else {
+					total = billing.total;
+				}
 				await ctx.db.dailySales.update({
 					where: {
 						id: existingDailySales.id,
 					},
 					data: {
-						totalSales: existingDailySales.totalSales + billing.total,
+						totalSales: existingDailySales.totalSales + total,
 						totalBills: existingDailySales.totalBills + 1,
 						totalItems: existingDailySales.totalItems + input.items.length,
 						bills: {
@@ -98,6 +104,12 @@ export const billingRouter = createTRPCRouter({
 					},
 				});
 			} else {
+				let total = 0;
+				if (billing.grandTotal && billing.grandTotal > 0) {
+					total = billing.grandTotal;
+				} else {
+					total = billing.total;
+				}
 				await ctx.db.dailySales.create({
 					data: {
 						shop: {
@@ -106,7 +118,7 @@ export const billingRouter = createTRPCRouter({
 							},
 						},
 						date: startOfDay,
-						totalSales: billing.total,
+						totalSales: total,
 						totalBills: 1,
 						totalItems: input.items.length,
 						bills: {

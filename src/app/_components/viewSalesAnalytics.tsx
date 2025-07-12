@@ -157,7 +157,6 @@ const ViewSalesAnalytics = ({ shopId }: { shopId: string }) => {
 
 	return (
 		<div className="space-y-10">
-			{/* --- Sales Overview Graph Section --- */}
 			<div className="flex w-full justify-center">
 				<Card className="w-full max-w-6xl border border-gray-700 bg-gray-900/80 shadow-lg">
 					<CardContent className="p-6 md:p-8">
