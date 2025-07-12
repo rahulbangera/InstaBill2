@@ -86,7 +86,6 @@ const ViewAnalytics = ({ shopId }: { shopId: string }) => {
       });
       setSalesData(updatedSalesData);
     }
-    console.log("---------", salesData);
   }, [fetchedMonthlyData]);
 
   useEffect(() => {

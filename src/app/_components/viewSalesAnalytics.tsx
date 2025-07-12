@@ -46,6 +46,7 @@ const ViewSalesAnalytics = ({ shopId }: { shopId: string }) => {
 		total: number;
 		discount: number;
 		employeeId: string;
+		grandTotal: number;
 		dailySalesId: string | null;
 	}
 
@@ -117,13 +118,16 @@ const ViewSalesAnalytics = ({ shopId }: { shopId: string }) => {
 			});
 			setSalesData(updatedSalesData);
 		}
-		console.log("---------", salesData);
 	}, [fetchedMonthlyData]);
 
 	useEffect(() => {
 		if (fetchedDailySalesData) {
+			const mappedBills = [...fetchedDailySalesData].map((bill) => ({
+				...bill,
+				grandTotal: bill.grandTotal ?? 0,
+			}));
 			setBills(
-				[...fetchedDailySalesData].sort(
+				mappedBills.sort(
 					(a, b) =>
 						new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
 				),
@@ -252,8 +256,10 @@ const ViewSalesAnalytics = ({ shopId }: { shopId: string }) => {
 											{bill.paymentMethod}
 										</p>
 										<p>
-											<span className="font-medium text-green-400">Total:</span>{" "}
-											₹{bill.total}
+											<span className="font-medium text-green-400">
+												Grand Total:
+											</span>{" "}
+											₹{bill.grandTotal > 0 ? bill.grandTotal : bill.total}
 										</p>
 										<p>
 											<span className="font-medium text-red-400">
@@ -305,7 +311,10 @@ const ViewSalesAnalytics = ({ shopId }: { shopId: string }) => {
 											<span className="font-medium text-gray-400">
 												Grand Total:
 											</span>{" "}
-											₹{billData.grandTotal}
+											₹
+											{billData.grandTotal! > 0
+												? billData.grandTotal
+												: billData.total}
 										</p>
 										<p>
 											<span className="font-medium text-gray-400">

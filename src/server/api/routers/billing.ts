@@ -201,9 +201,6 @@ export const billingRouter = createTRPCRouter({
 	getBillById: publicProcedure
 		.input(z.string())
 		.query(async ({ ctx, input }) => {
-			console.log("-----------------------------------");
-			console.log(input);
-			console.log("-----------------------------------");
 			const bill = await ctx.db.bill.findUnique({
 				where: {
 					id: input,
