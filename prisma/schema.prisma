@@ -84,17 +84,17 @@ model Employee {
 }
 
 model Shop {
-  id                String       @id @default(cuid())
-  shopId            String?      @unique
-  productCodeFormat String?      @unique
-  lastproductNo     Int?         @unique
+  id                String            @id @default(cuid())
+  shopId            String?           @unique
+  productCodeFormat String?           @unique
+  lastproductNo     Int?              @unique
   name              String
   address           String
   phone             String
   email             String
-  shopImage         String       @default("https://www.google.com/url?sa=i&url=https%3A%2F%2Fcwdaust.com.au%2Fcommercial%2Flot-5883-manganese-st-wedgefield%2Fplaceholder-store%2F&psig=AOvVaw3DrrT4yfF4HG22qs5AufhE&ust=1742104796919000&source=images&opi=89978449")
+  shopImage         String            @default("https://www.google.com/url?sa=i&url=https%3A%2F%2Fcwdaust.com.au%2Fcommercial%2Flot-5883-manganese-st-wedgefield%2Fplaceholder-store%2F&psig=AOvVaw3DrrT4yfF4HG22qs5AufhE&ust=1742104796919000&source=images&opi=89978449")
   ownerId           String
-  createdAt         DateTime     @default(now())
+  createdAt         DateTime          @default(now())
   bills             Bill[]
   dailySales        DailySales[]
   monthlySales      MonthlySales[]
@@ -102,7 +102,7 @@ model Shop {
   employees         Employee[]
   Expense           Expense[]
   products          Product[]
-  owner             Owner        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  owner             Owner             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 }
 
 model Product {
@@ -124,6 +124,7 @@ model Bill {
   customerName  String?
   customerPhone String?
   total         Float
+  grandTotal    Float?
   paymentMethod PaymentMethod
   discount      Float         @default(0)
   employeeId    String
@@ -169,27 +170,26 @@ model Expense {
 }
 
 model MonthlySales {
-  id          String   @id @default(cuid())
-  shopId      String
-  year        Int
-  month       Int
-  totalSales  Float
-  totalBills  Int
-  totalItems  Int
-  createdAt   DateTime @default(now())
-  shop        Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
-}
-
-model MonthlyExpenses {
   id         String   @id @default(cuid())
   shopId     String
   year       Int
   month      Int
-  total      Float
+  totalSales Float
+  totalBills Int
+  totalItems Int
   createdAt  DateTime @default(now())
   shop       Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
 }
 
+model MonthlyExpenses {
+  id        String   @id @default(cuid())
+  shopId    String
+  year      Int
+  month     Int
+  total     Float
+  createdAt DateTime @default(now())
+  shop      Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+}
 
 enum UserRole {
   OWNER
