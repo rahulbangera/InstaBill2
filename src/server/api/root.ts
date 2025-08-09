@@ -7,6 +7,7 @@ import { billingRouter } from "./routers/billing";
 import { dailySalesRouter } from "./routers/dailysales";
 import { employeesRouter } from "./routers/employees";
 import { invoiceRouter } from "./routers/invoice";
+import { analyticsRouter } from "./routers/analytics";
 // import { setupMonthlySummaryCron } from "../cron/monthly-summary";
 
 /**
@@ -17,14 +18,15 @@ import { invoiceRouter } from "./routers/invoice";
 
 // setupMonthlySummaryCron();
 export const appRouter = createTRPCRouter({
-  user: usersRouter,
-  shops: storesRouter,
-  ut: utRouter,
-  products: productsRouter,
-  billing: billingRouter,
-  invoice: invoiceRouter,
-  dailySales: dailySalesRouter,
-  employees: employeesRouter,
+	user: usersRouter,
+	shops: storesRouter,
+	ut: utRouter,
+	products: productsRouter,
+	billing: billingRouter,
+	invoice: invoiceRouter,
+	dailySales: dailySalesRouter,
+	employees: employeesRouter,
+	analytics: analyticsRouter,
 });
 
 // export type definition of API

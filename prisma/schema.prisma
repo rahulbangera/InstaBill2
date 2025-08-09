@@ -179,6 +179,8 @@ model MonthlySales {
   totalItems Int
   createdAt  DateTime @default(now())
   shop       Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@unique([shopId, year, month])
 }
 
 model MonthlyExpenses {
@@ -189,6 +191,8 @@ model MonthlyExpenses {
   total     Float
   createdAt DateTime @default(now())
   shop      Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@unique([shopId, year, month])
 }
 
 enum UserRole {
