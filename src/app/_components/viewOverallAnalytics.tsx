@@ -43,8 +43,10 @@ export default function ViewOverallAnalytics({ shopId }: { shopId: string }) {
 	const [toMonth, setToMonth] = useState(currentMonth);
 	const [toYear, setToYear] = useState(currentYearStr);
 
-	const [selectedExpenseMonth, setSelectedExpenseMonth] = useState("05");
-	const [selectedExpenseYear, setSelectedExpenseYear] = useState("2025");
+	const [selectedExpenseMonth, setSelectedExpenseMonth] =
+		useState(currentMonth);
+	const [selectedExpenseYear, setSelectedExpenseYear] =
+		useState(currentYearStr);
 
 	const [appliedFromMonth, setAppliedFromMonth] = useState("05");
 	const [appliedFromYear, setAppliedFromYear] = useState("2025");
