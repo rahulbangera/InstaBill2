@@ -329,6 +329,14 @@ export default function ViewOverallAnalytics({ shopId }: { shopId: string }) {
 										/>
 										<Line
 											type="monotone"
+											dataKey="avgDailySales"
+											stroke="#F59E0B"
+											strokeWidth={2}
+											dot={{ cursor: "pointer", r: 4 }}
+											activeDot={{ r: 6, cursor: "pointer" }}
+										/>
+										<Line
+											type="monotone"
 											dataKey="expenses"
 											stroke="#EF4444"
 											strokeWidth={2}
