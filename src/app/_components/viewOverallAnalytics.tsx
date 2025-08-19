@@ -64,6 +64,7 @@ export default function ViewOverallAnalytics({ shopId }: { shopId: string }) {
 	const [selectedDayForExpenses, setSelectedDayForExpenses] = useState<
 		string | null
 	>(null);
+	const [selectedExpenseIds, setSelectedExpenseIds] = useState<string[]>([]);
 
 	const fromValue = `${appliedFromYear}-${appliedFromMonth}`;
 	const toValue = `${appliedToYear}-${appliedToMonth}`;
@@ -120,9 +121,18 @@ export default function ViewOverallAnalytics({ shopId }: { shopId: string }) {
 			const dateStr = `${selectedExpenseYear}-${selectedExpenseMonth.padStart(2, "0")}-${data.day.padStart(2, "0")}`;
 			setSelectedDayForExpenses(dateStr);
 			setActiveSection("daily");
+			setSelectedExpenseIds([]); // Reset selection on new day
 		}
 	};
 
+	// Toggle expense card selection
+	const handleExpenseCardClick = (expenseId: string) => {
+		setSelectedExpenseIds((prev) =>
+			prev.includes(expenseId)
+				? prev.filter((id) => id !== expenseId)
+				: [...prev, expenseId],
+		);
+	};
 	const handleLineChartClick = (data: {
 		activePayload?: Array<{ payload: { month?: string } }>;
 	}) => {
@@ -150,6 +160,7 @@ export default function ViewOverallAnalytics({ shopId }: { shopId: string }) {
 		setActiveSection(null);
 		setSelectedMonthData(null);
 		setSelectedDayForExpenses(null);
+		setSelectedExpenseIds([]);
 	};
 	const summary = analyticsData?.summary ?? {
 		totalSales: 0,
@@ -500,8 +511,17 @@ export default function ViewOverallAnalytics({ shopId }: { shopId: string }) {
 					{activeSection === "daily" && selectedDayForExpenses && (
 						<div className="mb-8">
 							<div className="flex justify-between items-center mb-4">
-								<h2 className="text-2xl font-semibold text-white">
+								<h2 className="text-2xl font-semibold text-white flex items-center gap-4">
 									Expenses for {selectedDayForExpenses}
+									{selectedExpenseIds.length > 0 && selectedDayExpensesData && (
+										<span className="text-base font-normal text-green-400 bg-gray-800 px-3 py-1 rounded-lg">
+											Selected Total: ₹
+											{selectedDayExpensesData
+												.filter((e) => selectedExpenseIds.includes(e.id))
+												.reduce((sum, e) => sum + e.amount, 0)
+												.toLocaleString()}
+										</span>
+									)}
 								</h2>
 								<Button
 									onClick={handleCloseSections}
@@ -517,30 +537,41 @@ export default function ViewOverallAnalytics({ shopId }: { shopId: string }) {
 							) : selectedDayExpensesData &&
 								selectedDayExpensesData.length > 0 ? (
 								<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-									{selectedDayExpensesData.map((expense) => (
-										<Card
-											key={expense.id}
-											className="border border-gray-600 bg-gray-800"
-										>
-											<CardContent className="p-4 text-gray-200">
-												<div className="flex justify-between items-center">
-													<div>
-														<p className="font-semibold text-lg">
-															₹{expense.amount.toLocaleString()}
-														</p>
-														{expense.description && (
-															<p className="text-gray-400 text-sm mt-1">
-																{expense.description}
+									{selectedDayExpensesData.map((expense) => {
+										const isSelected = selectedExpenseIds.includes(expense.id);
+										return (
+											<Card
+												key={expense.id}
+												className={`border-2 ${isSelected ? "border-green-500 bg-green-950" : "border-gray-600 bg-gray-800"} cursor-pointer transition-all`}
+												onClick={() => handleExpenseCardClick(expense.id)}
+											>
+												<CardContent className="p-4 text-gray-200">
+													<div className="flex justify-between items-center">
+														<div>
+															<p className="font-semibold text-lg">
+																₹{expense.amount.toLocaleString()}
 															</p>
+															{expense.description && (
+																<p className="text-gray-400 text-sm mt-1">
+																	{expense.description}
+																</p>
+															)}
+															<p className="text-gray-500 text-xs mt-2">
+																{new Date(
+																	expense.createdAt,
+																).toLocaleTimeString()}
+															</p>
+														</div>
+														{isSelected && (
+															<span className="ml-2 text-green-400 font-bold">
+																✓
+															</span>
 														)}
-														<p className="text-gray-500 text-xs mt-2">
-															{new Date(expense.createdAt).toLocaleTimeString()}
-														</p>
 													</div>
-												</div>
-											</CardContent>
-										</Card>
-									))}
+												</CardContent>
+											</Card>
+										);
+									})}
 								</div>
 							) : (
 								<p className="text-gray-400 text-center py-8">
