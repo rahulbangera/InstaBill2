@@ -85,6 +85,8 @@ export default function InvoiceComp({
 
 			{/* Summary */}
 			<div>
+				<h3>Customer Name: Lifestyle International Pvt Ltd</h3>
+				<p>Udupi</p>
 				<h3>Payment Method: {invoiceData?.paymentMethod}</h3>
 			</div>
 			<div style={styles.summary}>
