@@ -51,13 +51,11 @@ export default function InvoiceComp({
 				</div>
 			</div>
 
-			{invoiceData?.customerName && (
-				<div style={styles.section}>
-					<h3>Bill To: </h3>
-					<p>Lifestyle International Pvt Ltd</p>
-					<p>Udupi</p>
-				</div>
-			)}
+			<div style={styles.section}>
+				<h3>Bill To: </h3>
+				<p>Lifestyle International Pvt Ltd</p>
+				<p>Udupi</p>
+			</div>
 
 			{/* Items Table */}
 			<table style={styles.table}>
