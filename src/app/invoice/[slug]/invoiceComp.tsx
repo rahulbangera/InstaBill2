@@ -53,10 +53,9 @@ export default function InvoiceComp({
 
 			{invoiceData?.customerName && (
 				<div style={styles.section}>
-					<h3>Bill To:</h3>
-					<p>Customer Name</p>
-					<p>Address: 456 Market St, City</p>
-					<p>Email: customer@email.com</p>
+					<h3>Bill To: </h3>
+					<p>Lifestyle International Pvt Ltd</p>
+					<p>Udupi</p>
 				</div>
 			)}
 
