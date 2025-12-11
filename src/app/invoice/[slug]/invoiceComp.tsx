@@ -84,29 +84,31 @@ export default function InvoiceComp({
 			</table>
 
 			{/* Summary */}
-			<div>
-				<h3>Customer Name: Lifestyle International Pvt Ltd</h3>
-				<p>Udupi</p>
-				<h3>Payment Method: {invoiceData?.paymentMethod}</h3>
-			</div>
-			<div style={styles.summary}>
-				<p>
-					Subtotal: ₹{" "}
-					{invoiceData?.items.reduce(
-						(total, item) => total + item.quantity * item.price,
-						0,
+			<div style={styles.footerContainer}>
+				<div>
+					<h3>Customer Name: Lifestyle International Pvt Ltd</h3>
+					<p>Udupi</p>
+					<h3>Payment Method: {invoiceData?.paymentMethod}</h3>
+				</div>
+				<div style={styles.summary}>
+					<p>
+						Subtotal: ₹{" "}
+						{invoiceData?.items.reduce(
+							(total, item) => total + item.quantity * item.price,
+							0,
+						)}
+					</p>
+					{(invoiceData?.discount ?? 0) > 0 && (
+						<p>Discount: ₹ {invoiceData?.discount}</p>
 					)}
-				</p>
-				{(invoiceData?.discount ?? 0) > 0 && (
-					<p>Discount: ₹ {invoiceData?.discount}</p>
-				)}
-				<h3>
-					Grand Total: ₹{" "}
-					{(invoiceData?.items ?? []).reduce(
-						(total, item) => total + item.quantity * item.price,
-						0,
-					) - (invoiceData?.discount ?? 0)}
-				</h3>
+					<h3>
+						Grand Total: ₹{" "}
+						{(invoiceData?.items ?? []).reduce(
+							(total, item) => total + item.quantity * item.price,
+							0,
+						) - (invoiceData?.discount ?? 0)}
+					</h3>
+				</div>
 			</div>
 		</div>
 	);
@@ -154,6 +156,11 @@ const styles: Record<string, React.CSSProperties> = {
 		textAlign: "right",
 		fontSize: "16px",
 		fontWeight: "bold",
+	},
+	footerContainer: {
+		display: "flex",
+		justifyContent: "space-between",
+		marginTop: "20px",
 	},
 	footer: {
 		textAlign: "center",
